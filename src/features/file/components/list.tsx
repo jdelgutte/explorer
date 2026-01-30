@@ -1,12 +1,5 @@
+import { DirEntry } from "@tauri-apps/plugin-fs";
 import { cn } from "@/lib/utils";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/shared/components/ui/table";
 import { EmptyFile } from "./empty-file";
 import { EntryIcon } from "./entry-icon";
 import type { FileViewChildProps } from "./file-view";
@@ -15,54 +8,88 @@ export function FileList({
   entries,
   isEntrySelected,
   onSelect,
-  onDoubleClick: handleDoubleClick,
+  onDoubleClick,
 }: FileViewChildProps) {
   if (entries.length === 0) {
     return <EmptyFile />;
   }
 
   return (
-    <div className="flex-1 overflow-auto h-full">
-      <Table>
-        <TableHeader>
-          <TableRow className="hover:bg-transparent">
-            <TableHead className="w-10 text-center"> </TableHead>
-            <TableHead className="min-w-[200px]">Name</TableHead>
-            <TableHead className="w-24 text-right text-muted-foreground">
-              Type
-            </TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {entries.map((entry) => {
-            const selected = isEntrySelected(entry);
-            return (
-              <TableRow
-                key={entry.name}
-                data-state={selected ? "selected" : undefined}
-                className={cn("cursor-pointer select-none", selected && "bg-muted")}
-                onClick={() => onSelect(entry)}
-                onDoubleClick={() => handleDoubleClick(entry)}
-              >
-                <TableCell className="w-10 py-2 text-center">
-                  <EntryIcon isDirectory={entry.isDirectory} />
-                </TableCell>
-                <TableCell className="min-w-0 font-medium">
-                  <span
-                    className="block max-w-full truncate select-none"
-                    title={entry.name}
-                  >
-                    {entry.name}
-                  </span>
-                </TableCell>
-                <TableCell className="w-24 py-2 text-right text-sm text-muted-foreground select-none">
-                  {entry.isDirectory ? "Folder" : "File"}
-                </TableCell>
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
+    <div className="flex h-full flex-1 flex-col overflow-hidden bg-card">
+      {/* Sticky header */}
+      <div className="sticky top-0 z-10 flex shrink-0 border-b border-border/60 bg-muted/30 backdrop-blur-sm">
+        <div className="flex min-w-0 flex-1 items-center gap-3 px-4 py-2.5">
+          <div className="w-9 shrink-0" aria-hidden />
+          <span className="min-w-0 flex-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            Name
+          </span>
+          <span className="w-16 shrink-0 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            Type
+          </span>
+        </div>
+      </div>
+
+      {/* List body */}
+      <div className="flex-1 overflow-auto">
+        <div className="py-1">
+          {entries.map((entry) => (
+            <ListRow
+              key={entry.name}
+              entry={entry}
+              isSelected={isEntrySelected(entry)}
+              onSelect={() => onSelect(entry)}
+              onDoubleClick={() => onDoubleClick(entry)}
+            />
+          ))}
+        </div>
+      </div>
     </div>
+  );
+}
+
+function ListRow({
+  entry,
+  isSelected,
+  onSelect,
+  onDoubleClick,
+}: {
+  entry: DirEntry;
+  isSelected: boolean;
+  onSelect: () => void;
+  onDoubleClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      onDoubleClick={onDoubleClick}
+      className={cn(
+        "relative flex w-full min-w-0 cursor-pointer select-none items-center gap-3 rounded-lg px-4 py-2.5 pl-5 text-left outline-none transition-colors",
+        "hover:bg-accent/60 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+        isSelected &&
+          "bg-accent text-accent-foreground hover:bg-accent/80 focus-visible:ring-accent"
+      )}
+    >
+      {/* Left accent when selected */}
+      <div
+        className={cn(
+          "absolute left-2 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full transition-colors",
+          isSelected ? "bg-primary" : "bg-transparent"
+        )}
+        aria-hidden
+      />
+      <div className="flex w-9 shrink-0 justify-center">
+        <EntryIcon isDirectory={entry.isDirectory} />
+      </div>
+      <span
+        className="min-w-0 flex-1 truncate font-medium text-foreground"
+        title={entry.name}
+      >
+        {entry.name}
+      </span>
+      <span className="w-16 shrink-0 text-right text-sm text-muted-foreground">
+        {entry.isDirectory ? "Folder" : "File"}
+      </span>
+    </button>
   );
 }

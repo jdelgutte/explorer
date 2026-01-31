@@ -1,7 +1,9 @@
 import "./App.css";
-import { Toolbar } from "@/shared/components/toolbar";
-import { Sidebar } from "@/shared/components/sidebar";
+import { CommandPalette } from "@/features/command/components/command-palette";
 import { FileView } from "@/features/file/components/file-view";
+import { Sidebar } from "@/shared/components/sidebar";
+import { Toaster } from "@/shared/components/ui/sonner";
+import { Toolbar } from "@/shared/components/toolbar";
 
 function App() {
   return (
@@ -13,6 +15,8 @@ function App() {
           <FileView />
         </main>
       </div>
+      <CommandPalette />
+      <Toaster />
     </div>
   );
 }

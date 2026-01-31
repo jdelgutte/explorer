@@ -5,14 +5,6 @@ mod trash;
 
 use tauri::{Emitter, Manager};
 
-<<<<<<< HEAD
-=======
-#[tauri::command]
-fn greet(name: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust!", name)
-}
-
->>>>>>> da157805c9550169f5890d320e9e40851dfd5b8a
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -20,10 +12,6 @@ pub fn run() {
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
-<<<<<<< HEAD
-=======
-            greet,
->>>>>>> da157805c9550169f5890d320e9e40851dfd5b8a
             trash::get_trash_dir,
             devices::get_mountable_devices,
         ])

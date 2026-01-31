@@ -1,5 +1,4 @@
 import { DirEntry } from "@tauri-apps/plugin-fs";
-import { FolderIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { EntryIcon } from "./entry-icon";
 import type { FileViewChildProps } from "./file-view";
@@ -11,28 +10,24 @@ export function FileGrid({
   onSelect,
   onDoubleClick,
 }: FileViewChildProps) {
-
-
   if (entries.length === 0) {
-    return (
-      <EmptyFile />
-    );
+    return <EmptyFile />;
   }
 
   return (
-    <div className="flex flex-1 flex-col overflow-hidden bg-card h-full w-full">
-      <div className="flex-1 overflow-auto p-2">
-          <div className="grid grid-cols-[repeat(auto-fill,minmax(120px,1fr))] auto-rows-[120px] gap-2">
-            {entries.map((entry) => (
-              <FileGridItem
-                key={entry.name}
-                entry={entry}
-                isSelected={isEntrySelected(entry)}
-                onClick={() => onSelect(entry)}
-                onDoubleClick={() => onDoubleClick(entry)}
-              />
-            ))}
-          </div>
+    <div className="flex flex-1 flex-col overflow-hidden bg-background h-full w-full">
+      <div className="flex-1 overflow-auto p-3">
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(100px,1fr))] auto-rows-auto gap-1 items-start">
+          {entries.map((entry) => (
+            <FileGridItem
+              key={entry.name}
+              entry={entry}
+              isSelected={isEntrySelected(entry)}
+              onClick={() => onSelect(entry)}
+              onDoubleClick={() => onDoubleClick(entry)}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -56,17 +51,25 @@ function FileGridItem({
         onClick={onClick}
         onDoubleClick={onDoubleClick}
         className={cn(
-          "flex h-full w-full min-w-0 flex-col items-center justify-center gap-2 rounded-lg border-2 p-2 transition-colors hover:bg-accent/50 overflow-hidden",
+          "group flex w-full min-w-0 flex-col items-center justify-center gap-2 rounded-xl border p-3 transition-all duration-200 overflow-hidden",
+          "hover:shadow-md hover:scale-[1.02] active:scale-[0.98]",
           isSelected
-            ? "border-primary bg-accent text-accent-foreground"
-            : "border-transparent hover:border-border"
+            ? "border-primary bg-primary/10 text-foreground shadow-sm ring-2 ring-primary/20"
+            : "border-transparent bg-card/50 hover:bg-accent/40 hover:border-border/80"
         )}
       >
-        <div className="flex size-16 shrink-0 items-center justify-center rounded-lg bg-muted/80">
-          <EntryIcon isDirectory={entry.isDirectory} className="size-11" />
+        <div
+          className={cn(
+            "flex size-12 shrink-0 items-center justify-center rounded-lg transition-colors",
+            entry.isDirectory
+              ? "bg-amber-500/15 text-amber-600 dark:bg-amber-400/15 dark:text-amber-400"
+              : "bg-slate-400/15 text-slate-600 dark:bg-slate-400/20 dark:text-slate-400"
+          )}
+        >
+          <EntryIcon isDirectory={entry.isDirectory} className="size-6 text-inherit" />
         </div>
         <span
-          className="max-w-full break-words text-center text-xs font-medium"
+          className="max-w-full wrap-break-word text-center text-xs font-medium text-foreground line-clamp-3 leading-snug"
           title={entry.name}
         >
           {entry.name}

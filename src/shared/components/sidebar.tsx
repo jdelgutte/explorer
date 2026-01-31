@@ -85,16 +85,30 @@ export function Sidebar({
     setCurrentPath(device.mount_point);
   };
 
-  // Fetch mountable devices on mount
+  // Initial fetch and listen for mountable device updates
   useEffect(() => {
     let cancelled = false;
+    let unlisten: (() => void) | null = null;
     devicesApi.getMountableDevices().then((list) => {
       if (!cancelled) setDevices(list);
     });
+    devicesApi
+      .listenMountableDevices((list) => {
+        if (!cancelled) setDevices(list);
+      })
+      .then((fn) => {
+        unlisten = fn;
+      });
     return () => {
       cancelled = true;
+      unlisten?.();
     };
   }, []);
+
+  useEffect(() => {
+    if (!currentPath) return;
+    setSelectedItem(SIDEBAR_ITEMS.find((item) => item.getPath().then((path) => path.includes(currentPath))) || SIDEBAR_ITEMS[0]);
+  }, [currentPath]);
 
   // Initial load: set currentPath from sidebar selection when empty
   useEffect(() => {

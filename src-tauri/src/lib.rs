@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use serde::Serialize;
 use sysinfo::Disks;
+use tauri::{Emitter, Manager};
 
 /// Represents a mountable device (disk/volume) for the sidebar.
 #[derive(Debug, Serialize)]
@@ -45,10 +46,8 @@ fn physical_disk_id(name: &str) -> String {
     trimmed.to_string()
 }
 
-/// Returns the list of physical disks (one entry per disk, not per partition).
-/// Partitions are grouped by physical device; the main partition (largest by total_space) is used for the mount point.
-#[tauri::command]
-fn get_mountable_devices() -> Vec<MountableDevice> {
+/// Fetches the current list of physical disks (one entry per disk, not per partition).
+fn fetch_mountable_devices() -> Vec<MountableDevice> {
     let disks = Disks::new_with_refreshed_list();
     let mut by_disk: HashMap<String, Vec<MountableDevice>> = HashMap::new();
     for disk in disks.list().iter() {
@@ -60,6 +59,7 @@ fn get_mountable_devices() -> Vec<MountableDevice> {
             available_space: disk.available_space(),
             is_removable: disk.is_removable(),
         };
+        println!("entry: {:?}", entry);
         let id = physical_disk_id(&entry.name);
         by_disk.entry(id).or_default().push(entry);
     }
@@ -76,6 +76,12 @@ fn get_mountable_devices() -> Vec<MountableDevice> {
             }
         })
         .collect()
+}
+
+/// Returns the list of physical disks (one entry per disk, not per partition).
+#[tauri::command]
+fn get_mountable_devices() -> Vec<MountableDevice> {
+    fetch_mountable_devices()
 }
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
@@ -118,6 +124,12 @@ fn get_trash_dir() -> Result<String, String> {
     }
 }
 
+/// Event name emitted when the list of mountable devices changes (e.g. USB plugged/unplugged).
+pub const MOUNTABLE_DEVICES_CHANGED: &str = "mountable-devices-changed";
+
+/// Poll interval in seconds for checking disk list changes.
+const DEVICES_POLL_INTERVAL_SECS: u64 = 3;
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -125,6 +137,25 @@ pub fn run() {
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![greet, get_trash_dir, get_mountable_devices])
+        .setup(|app| {
+            let app_handle = app.app_handle().clone();
+            std::thread::spawn(move || {
+                let mut last_mount_points: Vec<String> = Vec::new();
+                loop {
+                    let devices = fetch_mountable_devices();
+                    let mount_points: Vec<String> = devices
+                        .iter()
+                        .map(|d| d.mount_point.clone())
+                        .collect::<Vec<_>>();
+                    if mount_points != last_mount_points {
+                        last_mount_points = mount_points;
+                        let _ = app_handle.emit(MOUNTABLE_DEVICES_CHANGED, &devices);
+                    }
+                    std::thread::sleep(std::time::Duration::from_secs(DEVICES_POLL_INTERVAL_SECS));
+                }
+            });
+            Ok(())
+        })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

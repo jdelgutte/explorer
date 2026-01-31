@@ -1,5 +1,6 @@
 import "./App.css";
 import { CommandPalette } from "@/features/command/components/command-palette";
+import { CreateEntryDialog } from "@/features/file/components/create-entry-dialog";
 import { FileView } from "@/features/file/components/file-view";
 import { Sidebar } from "@/shared/components/sidebar";
 import { Toaster } from "@/shared/components/ui/sonner";
@@ -16,6 +17,7 @@ function App() {
         </main>
       </div>
       <CommandPalette />
+      <CreateEntryDialog />
       <Toaster />
     </div>
   );

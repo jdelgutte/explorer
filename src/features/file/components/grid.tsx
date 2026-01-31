@@ -22,7 +22,7 @@ export function FileGrid({
   return (
     <div className="flex flex-1 flex-col overflow-hidden bg-card h-full w-full">
       <div className="flex-1 overflow-auto p-2">
-          <div className="grid grid-cols-[repeat(auto-fill,minmax(120px,1fr))] auto-rows-[150px] gap-2">
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(120px,1fr))] auto-rows-[120px] gap-2">
             {entries.map((entry) => (
               <FileGridItem
                 key={entry.name}

@@ -1,5 +1,6 @@
+import { join } from "@tauri-apps/api/path";
 import { invoke } from "@tauri-apps/api/core";
-import { DirEntry, readDir } from "@tauri-apps/plugin-fs";
+import { DirEntry, mkdir, readDir, writeTextFile } from "@tauri-apps/plugin-fs";
 
 /** Hidden files/dirs (name starting with .) are excluded. Folders first, then by name. */
 export const fileApi = {
@@ -15,4 +16,16 @@ export const fileApi = {
 
   /** Returns the path to the system Trash / Recycle Bin directory. */
   getTrashDir: (): Promise<string> => invoke<string>("get_trash_dir"),
+
+  /** Creates an empty file at parentPath/name. */
+  createFile: async (parentPath: string, name: string): Promise<void> => {
+    const path = await join(parentPath, name);
+    await writeTextFile(path, "", { create: true });
+  },
+
+  /** Creates a directory at parentPath/name. */
+  createFolder: async (parentPath: string, name: string): Promise<void> => {
+    const path = await join(parentPath, name);
+    await mkdir(path);
+  },
 };

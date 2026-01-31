@@ -6,6 +6,8 @@
     "main"
   ],
   "permissions": [
+    "global-shortcut:allow-register",
+    "global-shortcut:allow-unregister",
     "core:default",
     "core:window:allow-start-dragging",
     "opener:deny-open-url",

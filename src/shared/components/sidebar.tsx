@@ -17,11 +17,15 @@ import {
   Video,
   Trash2,
   Folder,
+  HardDrive,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { fileApi } from "@/features/file/file.api";
+import { devicesApi } from "@/features/devices/devices.api";
+import type { MountableDevice } from "@/features/devices/devices.api";
 import { useEffect, useState } from "react";
 import { useFileStore } from "@/features/file/store/file.store";
+import { Separator } from "@/shared/components/ui/separator";
 
 export type SidebarLocation =
   | "home"
@@ -65,11 +69,32 @@ export function Sidebar({
   const currentPath = useFileStore((state) => state.currentPath);
   const setCurrentPath = useFileStore((state) => state.setCurrentPath);
   const [selectedItem, setSelectedItem] = useState<SidebarItem>(SIDEBAR_ITEMS[0]);
+  const [selectedDeviceMountPoint, setSelectedDeviceMountPoint] = useState<
+    string | null
+  >(null);
+  const [devices, setDevices] = useState<MountableDevice[]>([]);
 
-  const handleSelect = async (item: SidebarItem) => {
+  const handleSelectPlace = async (item: SidebarItem) => {
     setSelectedItem(item);
+    setSelectedDeviceMountPoint(null);
     setCurrentPath(await item.getPath());
   };
+
+  const handleSelectDevice = (device: MountableDevice) => {
+    setSelectedDeviceMountPoint(device.mount_point);
+    setCurrentPath(device.mount_point);
+  };
+
+  // Fetch mountable devices on mount
+  useEffect(() => {
+    let cancelled = false;
+    devicesApi.getMountableDevices().then((list) => {
+      if (!cancelled) setDevices(list);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // Initial load: set currentPath from sidebar selection when empty
   useEffect(() => {
@@ -103,16 +128,17 @@ export function Sidebar({
         "flex w-52 shrink-0 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground",
         className
       )}
-      aria-label="Places"
+      aria-label="Places and devices"
     >
       <nav className="flex flex-col gap-0.5 p-2" aria-label="Places">
         {SIDEBAR_ITEMS.map((item) => {
-          const isSelected = selectedItem.id === item.id;
+          const isSelected =
+            selectedDeviceMountPoint === null && selectedItem.id === item.id;
           return (
             <button
               key={item.id}
               type="button"
-              onClick={() => handleSelect(item)}
+              onClick={() => handleSelectPlace(item)}
               className={cn(
                 "flex h-9 w-full items-center gap-3 rounded-md px-3 text-left text-sm font-medium transition-colors",
                 isSelected
@@ -123,6 +149,37 @@ export function Sidebar({
             >
               <item.icon className="size-5 shrink-0 text-muted-foreground" />
               <span className="truncate">{item.label}</span>
+            </button>
+          );
+        })}
+      </nav>
+
+      <Separator className="my-1" />
+
+      <nav className="flex flex-col gap-0.5 p-2" aria-label="Devices">
+        <p className="px-3 py-1.5 text-xs font-medium text-muted-foreground">
+          Devices
+        </p>
+        {devices.map((device) => {
+          const isSelected = selectedDeviceMountPoint === device.mount_point;
+          const label =
+            device.name || device.mount_point || "Unknown device";
+          return (
+            <button
+              key={device.mount_point}
+              type="button"
+              onClick={() => handleSelectDevice(device)}
+              className={cn(
+                "flex h-9 w-full items-center gap-3 rounded-md px-3 text-left text-sm font-medium transition-colors",
+                isSelected
+                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                  : "text-sidebar-foreground hover:bg-sidebar-accent/70 hover:text-sidebar-accent-foreground"
+              )}
+              aria-current={isSelected ? "true" : undefined}
+              title={`${device.mount_point} (${device.file_system})`}
+            >
+              <HardDrive className="size-5 shrink-0 text-muted-foreground" />
+              <span className="truncate">{label}</span>
             </button>
           );
         })}

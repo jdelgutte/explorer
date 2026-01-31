@@ -1,6 +1,6 @@
 import { join } from "@tauri-apps/api/path";
 import { DirEntry } from "@tauri-apps/plugin-fs";
-import { useFileStore } from "../file.store";
+import { useFileStore } from "../store/file.store";
 import { useViewStore } from "@/features/viewmode/view.store";
 import { FileGrid } from "./grid";
 import { FileList } from "./list";

@@ -21,7 +21,7 @@ import {
 import { cn } from "@/lib/utils";
 import { fileApi } from "@/features/file/file.api";
 import { useEffect, useState } from "react";
-import { useFileStore } from "@/features/file/file.store";
+import { useFileStore } from "@/features/file/store/file.store";
 
 export type SidebarLocation =
   | "home"

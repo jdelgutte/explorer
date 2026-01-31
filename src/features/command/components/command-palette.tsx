@@ -1,7 +1,7 @@
 "use client";
 
 import { FilePlus, FolderPlus } from "lucide-react";
-import { useCreateDialogStore } from "@/features/file/create-dialog.store";
+import { useCreateDialogStore } from "@/features/file/store/create-dialog.store";
 import { useCommandPaletteShortcut } from "@/features/command/useCommandPaletteShortcut";
 import {
   CommandDialog,

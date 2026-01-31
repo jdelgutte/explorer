@@ -3,8 +3,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { fileApi } from "@/features/file/file.api";
-import { useCreateDialogStore } from "@/features/file/create-dialog.store";
-import { useFileStore } from "@/features/file/file.store";
+import { useCreateDialogStore } from "@/features/file/store/create-dialog.store";
+import { useFileStore } from "@/features/file/store/file.store";
 import { Button } from "@/shared/components/ui/button";
 import {
   Dialog,

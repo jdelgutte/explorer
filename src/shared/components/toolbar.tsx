@@ -1,53 +1,18 @@
 import { useState } from "react";
-import { ChevronLeft, ChevronRight, Search } from "lucide-react";
-import { Button } from "@/shared/components/ui/button";
+import { Search } from "lucide-react";
 import { ViewModeToggle } from "@/features/viewmode/view-mode-toggle";
+import { NavigationButtons } from "@/features/navigation/components/navigation-buttons";
 
 type ToolbarProps = {
-  onBack?: () => void;
-  onForward?: () => void;
-  onSearch?: (query: string) => void;
   searchPlaceholder?: string;
 };
 
-export function Toolbar({
-  onBack,
-  onForward,
-  onSearch,
-  searchPlaceholder = "Search...",
-}: ToolbarProps) {
+export function Toolbar({ searchPlaceholder = "Search..." }: ToolbarProps) {
   const [searchValue, setSearchValue] = useState("");
-
-  /* const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSearch?.(searchValue);
-  }; */
 
   return (
     <header className="flex h-11 shrink-0 items-center gap-2 border-b border-border bg-background px-3">
-      {/* Navigation buttons */}
-      <div className="flex items-center gap-0.5">
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className="size-8"
-          onClick={onBack}
-          aria-label="Back"
-        >
-          <ChevronLeft className="size-5" />
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className="size-8"
-          onClick={onForward}
-          aria-label="Forward"
-        >
-          <ChevronRight className="size-5" />
-        </Button>
-      </div>
+      <NavigationButtons />
 
       {/* Search bar */}
       <form

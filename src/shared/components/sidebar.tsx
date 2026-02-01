@@ -26,6 +26,11 @@ import type { MountableDevice } from "@/features/devices/devices.api";
 import { useEffect, useState } from "react";
 import { useFileStore } from "@/features/file/store/file.store";
 import { Separator } from "@/shared/components/ui/separator";
+import { QuickAccessList } from "@/features/quick-access/components/quick-access-list";
+import {
+  useQuickAccessStore,
+  type QuickAccessItem,
+} from "@/features/quick-access/store/quick-access.store";
 
 export type SidebarLocation =
   | "home"
@@ -72,16 +77,29 @@ export function Sidebar({
   const [selectedDeviceMountPoint, setSelectedDeviceMountPoint] = useState<
     string | null
   >(null);
+  const [selectedQuickAccessId, setSelectedQuickAccessId] = useState<
+    string | null
+  >(null);
   const [devices, setDevices] = useState<MountableDevice[]>([]);
+  const quickAccessItems = useQuickAccessStore((s) => s.items);
 
   const handleSelectPlace = async (item: SidebarItem) => {
     setSelectedItem(item);
     setSelectedDeviceMountPoint(null);
+    setSelectedQuickAccessId(null);
     setCurrentPath(await item.getPath());
+  };
+
+  const handleSelectQuickAccess = (item: QuickAccessItem) => {
+    setSelectedItem(SIDEBAR_ITEMS[0]); // clear place selection
+    setSelectedDeviceMountPoint(null);
+    setSelectedQuickAccessId(item.id);
+    setCurrentPath(item.path);
   };
 
   const handleSelectDevice = (device: MountableDevice) => {
     setSelectedDeviceMountPoint(device.mount_point);
+    setSelectedQuickAccessId(null);
     setCurrentPath(device.mount_point);
   };
 
@@ -104,6 +122,17 @@ export function Sidebar({
       unlisten?.();
     };
   }, []);
+
+  useEffect(() => {
+    if (!currentPath) return;
+    const quickItem = quickAccessItems.find((item) => item.path === currentPath);
+    if (quickItem) {
+      setSelectedQuickAccessId(quickItem.id);
+      setSelectedDeviceMountPoint(null);
+    } else {
+      setSelectedQuickAccessId(null);
+    }
+  }, [currentPath, quickAccessItems]);
 
   useEffect(() => {
     if (!currentPath) return;
@@ -166,6 +195,15 @@ export function Sidebar({
             </button>
           );
         })}
+      </nav>
+
+      <Separator className="my-1" />
+
+      <nav className="flex flex-col gap-0.5 p-2" aria-label="Quick access">
+        <QuickAccessList
+          selectedQuickAccessId={selectedQuickAccessId}
+          onSelectQuickAccess={handleSelectQuickAccess}
+        />
       </nav>
 
       <Separator className="my-1" />

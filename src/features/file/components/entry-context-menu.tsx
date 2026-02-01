@@ -15,6 +15,7 @@ import {
   ClipboardPaste,
   Trash2,
   FolderOpen,
+  Pin,
 } from "lucide-react";
 
 export type EntryContextMenuHandlers = {
@@ -25,6 +26,8 @@ export type EntryContextMenuHandlers = {
   onCut?: (entry: DirEntry) => void;
   onPaste?: (entry: DirEntry) => void;
   onDelete?: (entry: DirEntry) => void;
+  /** Add folder to Quick access (only shown for directories). */
+  onAddToQuickAccess?: (entry: DirEntry) => void;
 };
 
 type EntryContextMenuProps = {
@@ -36,7 +39,7 @@ type EntryContextMenuProps = {
 
 export function EntryContextMenu({
   entry,
-  currentPath,
+  currentPath: _currentPath,
   handlers,
   children,
 }: EntryContextMenuProps) {
@@ -47,6 +50,7 @@ export function EntryContextMenu({
   const handleCut = () => handlers.onCut?.(entry);
   const handlePaste = () => handlers.onPaste?.(entry);
   const handleDelete = () => handlers.onDelete?.(entry);
+  const handleAddToQuickAccess = () => handlers.onAddToQuickAccess?.(entry);
 
   return (
     <ContextMenu>
@@ -56,6 +60,12 @@ export function EntryContextMenu({
           <FolderOpen className="size-4" />
           Open
         </ContextMenuItem>
+        {entry.isDirectory && handlers.onAddToQuickAccess && (
+          <ContextMenuItem onSelect={handleAddToQuickAccess}>
+            <Pin className="size-4" />
+            Add to Quick access
+          </ContextMenuItem>
+        )}
         <ContextMenuItem onSelect={handleRename}>
           <Pencil className="size-4" />
           Rename

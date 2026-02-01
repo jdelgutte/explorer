@@ -84,9 +84,9 @@ export function FileList({
       {/* Sticky header — right-click to show/hide columns */}
       <ContextMenu>
         <ContextMenuTrigger asChild>
-          <div className="sticky top-0 z-10 flex shrink-0 border-b border-border/40 bg-background/95 px-3 py-2.5 backdrop-blur-sm">
-            <div className="flex min-w-0 flex-1 items-center gap-4">
-              <div className="w-10 shrink-0" aria-hidden />
+          <div className="sticky top-0 z-10 flex shrink-0 border-b border-border/40 bg-background/95 px-2 py-1.5 backdrop-blur-sm">
+            <div className="flex min-w-0 flex-1 items-center gap-3">
+              <div className="w-8 shrink-0" aria-hidden />
               {columns.name ? (
                 <span className="min-w-0 flex-1 text-[11px] font-medium uppercase tracking-widest text-muted-foreground/80">
                   {COLUMN_LABELS.name}
@@ -128,7 +128,7 @@ export function FileList({
 
       {/* List body */}
       <div className="flex-1 overflow-auto">
-        <div className="px-2 py-2">
+        <div className="px-1.5 py-1">
           {entries.map((entry) => (
             <ListRow
               key={entry.name}
@@ -181,7 +181,7 @@ function ListRow({
           onClick={onSelect}
           onDoubleClick={onDoubleClick}
           className={cn(
-            "relative flex w-full min-w-0 cursor-pointer select-none items-center gap-4 rounded-md px-3 py-2.5 pl-4 text-left outline-none transition-[color,background-color] duration-150",
+            "relative flex w-full min-w-0 cursor-pointer select-none items-center gap-3 rounded px-2 py-1.5 pl-2.5 text-left outline-none transition-[color,background-color] duration-150",
             "hover:bg-accent/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
             isSelected
               ? "bg-accent/80 text-accent-foreground hover:bg-accent focus-visible:ring-accent"
@@ -190,14 +190,14 @@ function ListRow({
         >
           <div
             className={cn(
-              "absolute left-0 top-1/2 h-6 w-0.5 -translate-y-1/2 rounded-r-full bg-primary transition-opacity duration-150",
+              "absolute left-0 top-1/2 h-4 w-0.5 -translate-y-1/2 rounded-r-full bg-primary transition-opacity duration-150",
               isSelected ? "opacity-100" : "opacity-0"
             )}
             aria-hidden
           />
           <div
             className={cn(
-              "flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-md transition-colors",
+              "flex size-8 shrink-0 items-center justify-center overflow-hidden rounded transition-colors",
               entry.isDirectory
                 ? "bg-amber-500/10 dark:bg-amber-400/10"
                 : "bg-muted/60 dark:bg-muted/40"
@@ -206,12 +206,12 @@ function ListRow({
             <EntryIcon
               isDirectory={entry.isDirectory}
               imageSrc={imageSrc}
-              className={imageSrc ? "size-10" : "size-5 text-muted-foreground"}
+              className={imageSrc ? "size-8" : "size-4 text-muted-foreground"}
             />
           </div>
           {columns.name ? (
             <span
-              className="min-w-0 flex-1 truncate text-[15px] font-medium tracking-tight text-foreground"
+              className="min-w-0 flex-1 truncate text-sm font-medium tracking-tight text-foreground"
               title={entry.name}
             >
               {entry.name}
@@ -220,12 +220,12 @@ function ListRow({
             <span className="min-w-0 flex-1" aria-hidden />
           )}
           {columns.type && (
-            <span className="w-20 shrink-0 text-right text-[13px] text-muted-foreground">
+            <span className="w-20 shrink-0 text-right text-xs text-muted-foreground">
               {entry.isDirectory ? "Folder" : "File"}
             </span>
           )}
           {columns.size && (
-            <span className="w-24 shrink-0 text-right text-[13px] text-muted-foreground tabular-nums">
+            <span className="w-24 shrink-0 text-right text-xs text-muted-foreground tabular-nums">
               {metadata
                 ? formatFileSize(metadata.size)
                 : entry.isDirectory
@@ -234,7 +234,7 @@ function ListRow({
             </span>
           )}
           {columns.dateModified && (
-            <span className="w-36 shrink-0 text-right text-[13px] text-muted-foreground tabular-nums">
+            <span className="w-36 shrink-0 text-right text-xs text-muted-foreground tabular-nums">
               {metadata && metadata.mtime
                 ? formatDate(metadata.mtime)
                 : metadata

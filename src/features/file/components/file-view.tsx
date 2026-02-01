@@ -1,10 +1,12 @@
 import { join } from "@tauri-apps/api/path";
 import { DirEntry } from "@tauri-apps/plugin-fs";
+import { openPath } from "@tauri-apps/plugin-opener";
+import { toast } from "sonner";
 import { useFileStore } from "../store/file.store";
 import { useViewStore } from "@/features/viewmode/view.store";
+import type { EntryContextMenuHandlers } from "./entry-context-menu";
 import { FileGrid } from "./grid";
 import { FileList } from "./list";
-import { openPath } from "@tauri-apps/plugin-opener";
 
 /** Props passed to list/grid by the parent. */
 export type FileViewChildProps = {
@@ -14,6 +16,7 @@ export type FileViewChildProps = {
   isEntrySelected: (entry: DirEntry) => boolean;
   onSelect: (entry: DirEntry) => void;
   onDoubleClick: (entry: DirEntry) => void;
+  contextMenuHandlers: EntryContextMenuHandlers;
 };
 
 export function FileView() {
@@ -42,6 +45,16 @@ export function FileView() {
     }
   };
 
+  const contextMenuHandlers: EntryContextMenuHandlers = {
+    onOpen: handleDoubleClick,
+    onRename: () => toast.info("Rename – coming soon"),
+    onProperties: () => toast.info("Properties – coming soon"),
+    onCopy: () => toast.info("Copy – coming soon"),
+    onCut: () => toast.info("Cut – coming soon"),
+    onPaste: () => toast.info("Paste – coming soon"),
+    onDelete: () => toast.info("Delete – coming soon"),
+  };
+
   const childProps: FileViewChildProps = {
     entries,
     currentPath,
@@ -49,6 +62,7 @@ export function FileView() {
     isEntrySelected,
     onSelect: setSelectedItem,
     onDoubleClick: handleDoubleClick,
+    contextMenuHandlers,
   };
 
   return viewMode === "list" ? (

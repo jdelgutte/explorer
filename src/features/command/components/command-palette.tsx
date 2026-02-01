@@ -1,7 +1,8 @@
 "use client";
 
-import { FilePlus, FolderPlus } from "lucide-react";
+import { FilePlus, FolderPlus, Search } from "lucide-react";
 import { useCreateDialogStore } from "@/features/file/store/create-dialog.store";
+import { useSearchStore } from "@/features/search/store/search.store";
 import { useCommandPaletteShortcut } from "@/features/command/useCommandPaletteShortcut";
 import {
   CommandDialog,
@@ -15,10 +16,16 @@ import {
 export function CommandPalette() {
   const { open, onOpenChange } = useCommandPaletteShortcut();
   const openCreateDialog = useCreateDialogStore((state) => state.openCreateDialog);
+  const setSearchDialogOpen = useSearchStore((state) => state.setSearchDialogOpen);
 
   const handleSelectCreate = (type: "file" | "folder") => {
     onOpenChange(false);
     openCreateDialog(type);
+  };
+
+  const handleSelectGlobalSearch = () => {
+    onOpenChange(false);
+    setSearchDialogOpen(true);
   };
 
   return (
@@ -31,6 +38,12 @@ export function CommandPalette() {
       <CommandInput placeholder="Search commands..." />
       <CommandList>
         <CommandEmpty>No results found.</CommandEmpty>
+        <CommandGroup heading="Search">
+          <CommandItem onSelect={handleSelectGlobalSearch}>
+            <Search className="size-4" />
+            Global search
+          </CommandItem>
+        </CommandGroup>
         <CommandGroup heading="Create">
           <CommandItem onSelect={() => handleSelectCreate("file")}>
             <FilePlus className="size-4" />

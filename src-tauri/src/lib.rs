@@ -1,7 +1,10 @@
 //! Explorer Tauri application — lib entry and app wiring.
 
 mod devices;
+mod image_thumbnail;
+mod pdf_thumbnail;
 mod trash;
+mod search;
 
 use tauri::{Emitter, Manager};
 
@@ -14,8 +17,16 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             trash::get_trash_dir,
             devices::get_mountable_devices,
+            pdf_thumbnail::pdf_thumbnail,
+            image_thumbnail::image_thumbnail,
+            search::start_search,
+            search::cancel_search,
         ])
         .setup(|app| {
+            let pdfium = pdf_thumbnail::init_pdfium_for_app();
+            app.manage(pdf_thumbnail::PdfiumState(pdfium));
+            app.manage(search::SearchState::default());
+
             let app_handle = app.app_handle().clone();
             std::thread::spawn(move || {
                 let mut last_mount_points: Vec<String> = Vec::new();

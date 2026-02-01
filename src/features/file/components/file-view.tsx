@@ -9,6 +9,7 @@ import { openPath } from "@tauri-apps/plugin-opener";
 /** Props passed to list/grid by the parent. */
 export type FileViewChildProps = {
   entries: DirEntry[];
+  currentPath: string | null;
   selectedItem: DirEntry | null;
   isEntrySelected: (entry: DirEntry) => boolean;
   onSelect: (entry: DirEntry) => void;
@@ -16,7 +17,6 @@ export type FileViewChildProps = {
 };
 
 export function FileView() {
-
   const {
     entries,
     currentPath,
@@ -37,15 +37,14 @@ export function FileView() {
       setCurrentPath(nextPath);
       setSelectedItem(null);
     } else {
-      console.log("double click on file", entry.name);
       const path = await join(currentPath, entry.name);
       await openPath(path);
-      //setSelectedItem(entry);
     }
   };
 
   const childProps: FileViewChildProps = {
     entries,
+    currentPath,
     selectedItem,
     isEntrySelected,
     onSelect: setSelectedItem,

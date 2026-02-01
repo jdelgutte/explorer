@@ -3,9 +3,11 @@ import { cn } from "@/lib/utils";
 import { EntryIcon } from "./entry-icon";
 import type { FileViewChildProps } from "./file-view";
 import { EmptyFile } from "./empty-file";
+import { useThumbnail } from "../use-thumbnail";
 
 export function FileGrid({
   entries,
+  currentPath,
   isEntrySelected,
   onSelect,
   onDoubleClick,
@@ -22,6 +24,7 @@ export function FileGrid({
             <FileGridItem
               key={entry.name}
               entry={entry}
+              currentPath={currentPath}
               isSelected={isEntrySelected(entry)}
               onClick={() => onSelect(entry)}
               onDoubleClick={() => onDoubleClick(entry)}
@@ -35,15 +38,19 @@ export function FileGrid({
 
 function FileGridItem({
   entry,
+  currentPath,
   isSelected,
   onClick,
   onDoubleClick,
 }: {
   entry: DirEntry;
+  currentPath: string | null;
   isSelected: boolean;
   onClick: () => void;
   onDoubleClick: () => void;
 }) {
+  const imageSrc = useThumbnail(entry, currentPath);
+
   return (
     <div className="flex shrink-0">
       <button
@@ -60,13 +67,17 @@ function FileGridItem({
       >
         <div
           className={cn(
-            "flex size-12 shrink-0 items-center justify-center rounded-lg transition-colors",
+            "flex size-12 shrink-0 items-center justify-center rounded-lg overflow-hidden transition-colors",
             entry.isDirectory
               ? "bg-amber-500/15 text-amber-600 dark:bg-amber-400/15 dark:text-amber-400"
-              : "bg-slate-400/15 text-slate-600 dark:bg-slate-400/20 dark:text-slate-400"
+              : !imageSrc && "bg-slate-400/15 text-slate-600 dark:bg-slate-400/20 dark:text-slate-400"
           )}
         >
-          <EntryIcon isDirectory={entry.isDirectory} className="size-6 text-inherit" />
+          <EntryIcon
+            isDirectory={entry.isDirectory}
+            imageSrc={imageSrc}
+            className={imageSrc ? "size-12" : "size-6 text-inherit"}
+          />
         </div>
         <span
           className="max-w-full wrap-break-word text-center text-xs font-medium text-foreground line-clamp-3 leading-snug"

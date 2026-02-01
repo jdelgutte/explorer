@@ -3,9 +3,11 @@ import { cn } from "@/lib/utils";
 import { EmptyFile } from "./empty-file";
 import { EntryIcon } from "./entry-icon";
 import type { FileViewChildProps } from "./file-view";
+import { useThumbnail } from "../use-thumbnail";
 
 export function FileList({
   entries,
+  currentPath,
   isEntrySelected,
   onSelect,
   onDoubleClick,
@@ -36,6 +38,7 @@ export function FileList({
             <ListRow
               key={entry.name}
               entry={entry}
+              currentPath={currentPath}
               isSelected={isEntrySelected(entry)}
               onSelect={() => onSelect(entry)}
               onDoubleClick={() => onDoubleClick(entry)}
@@ -49,15 +52,19 @@ export function FileList({
 
 function ListRow({
   entry,
+  currentPath,
   isSelected,
   onSelect,
   onDoubleClick,
 }: {
   entry: DirEntry;
+  currentPath: string | null;
   isSelected: boolean;
   onSelect: () => void;
   onDoubleClick: () => void;
 }) {
+  const imageSrc = useThumbnail(entry, currentPath);
+
   return (
     <button
       type="button"
@@ -78,8 +85,12 @@ function ListRow({
         )}
         aria-hidden
       />
-      <div className="flex w-9 shrink-0 justify-center">
-        <EntryIcon isDirectory={entry.isDirectory} />
+      <div className="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded">
+        <EntryIcon
+          isDirectory={entry.isDirectory}
+          imageSrc={imageSrc}
+          className={imageSrc ? "size-9" : undefined}
+        />
       </div>
       <span
         className="min-w-0 flex-1 truncate font-medium text-foreground"

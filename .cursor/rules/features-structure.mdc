@@ -1,0 +1,27 @@
+---
+description: One feature = one folder under src/features
+globs: src/features/**/*
+alwaysApply: false
+---
+
+# Features folder structure
+
+Each new feature lives in its own folder under `src/features/<feature-name>/`.
+
+- **One feature = one folder** (e.g. `quick-access/`, `search/`, `file/`).
+- Inside the feature folder:
+  - `components/` for React components
+  - `store/` for Zustand stores (use `persist` from `zustand/middleware` when state must survive reloads)
+  - API/hooks at the feature root (e.g. `*.api.ts`, `use*.ts`)
+- Import from features with `@/features/<feature-name>/...`.
+
+Example:
+
+```
+src/features/
+  quick-access/
+    components/
+      quick-access-list.tsx
+    store/
+      quick-access.store.ts
+```

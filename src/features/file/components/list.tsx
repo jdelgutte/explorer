@@ -1,9 +1,53 @@
 import { DirEntry } from "@tauri-apps/plugin-fs";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import {
+  ContextMenu,
+  ContextMenuCheckboxItem,
+  ContextMenuContent,
+  ContextMenuLabel,
+  ContextMenuTrigger,
+} from "@/shared/components/ui/context-menu";
 import { EmptyFile } from "./empty-file";
+import { EntryContextMenu } from "./entry-context-menu";
 import { EntryIcon } from "./entry-icon";
 import type { FileViewChildProps } from "./file-view";
+import { fileApi, type EntryMetadata } from "../file.api";
+import {
+  useListColumnsStore,
+  type ListColumnId,
+} from "../store/list-columns.store";
 import { useThumbnail } from "../use-thumbnail";
+
+const COLUMN_LABELS: Record<ListColumnId, string> = {
+  name: "Name",
+  type: "Type",
+  size: "Size",
+  dateModified: "Date modified",
+};
+
+function formatFileSize(bytes: number): string {
+  if (bytes === 0) return "—";
+  const units = ["B", "KB", "MB", "GB", "TB"];
+  let i = 0;
+  let n = bytes;
+  while (n >= 1024 && i < units.length - 1) {
+    n /= 1024;
+    i++;
+  }
+  return i === 0 ? `${n} ${units[i]}` : `${n.toFixed(1)} ${units[i]}`;
+}
+
+function formatDate(d: Date | null): string {
+  if (!d) return "—";
+  return d.toLocaleDateString(undefined, {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
 
 export function FileList({
   entries,
@@ -11,37 +55,91 @@ export function FileList({
   isEntrySelected,
   onSelect,
   onDoubleClick,
+  contextMenuHandlers,
 }: FileViewChildProps) {
+  const columns = useListColumnsStore((s) => s.columns);
+  const toggleColumn = useListColumnsStore((s) => s.toggleColumn);
+  const [metadata, setMetadata] = useState<Record<string, EntryMetadata>>({});
+
+  useEffect(() => {
+    if (!currentPath || entries.length === 0) {
+      setMetadata({});
+      return;
+    }
+    let cancelled = false;
+    fileApi.getEntriesMetadata(currentPath, entries).then((m) => {
+      if (!cancelled) setMetadata(m);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [currentPath, entries]);
+
   if (entries.length === 0) {
     return <EmptyFile />;
   }
 
   return (
-    <div className="flex h-full flex-1 flex-col overflow-hidden bg-card">
-      {/* Sticky header */}
-      <div className="sticky top-0 z-10 flex shrink-0 border-b border-border/60 bg-muted/30 backdrop-blur-sm">
-        <div className="flex min-w-0 flex-1 items-center gap-3 px-4 py-2.5">
-          <div className="w-9 shrink-0" aria-hidden />
-          <span className="min-w-0 flex-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-            Name
-          </span>
-          <span className="w-16 shrink-0 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
-            Type
-          </span>
-        </div>
-      </div>
+    <div className="flex h-full flex-1 flex-col overflow-hidden bg-background">
+      {/* Sticky header — right-click to show/hide columns */}
+      <ContextMenu>
+        <ContextMenuTrigger asChild>
+          <div className="sticky top-0 z-10 flex shrink-0 border-b border-border/40 bg-background/95 px-3 py-2.5 backdrop-blur-sm">
+            <div className="flex min-w-0 flex-1 items-center gap-4">
+              <div className="w-10 shrink-0" aria-hidden />
+              {columns.name ? (
+                <span className="min-w-0 flex-1 text-[11px] font-medium uppercase tracking-widest text-muted-foreground/80">
+                  {COLUMN_LABELS.name}
+                </span>
+              ) : (
+                <span className="min-w-0 flex-1" aria-hidden />
+              )}
+              {columns.type && (
+                <span className="w-20 shrink-0 text-right text-[11px] font-medium uppercase tracking-widest text-muted-foreground/80">
+                  {COLUMN_LABELS.type}
+                </span>
+              )}
+              {columns.size && (
+                <span className="w-24 shrink-0 text-right text-[11px] font-medium uppercase tracking-widest text-muted-foreground/80">
+                  {COLUMN_LABELS.size}
+                </span>
+              )}
+              {columns.dateModified && (
+                <span className="w-36 shrink-0 text-right text-[11px] font-medium uppercase tracking-widest text-muted-foreground/80">
+                  {COLUMN_LABELS.dateModified}
+                </span>
+              )}
+            </div>
+          </div>
+        </ContextMenuTrigger>
+        <ContextMenuContent className="w-52">
+          <ContextMenuLabel>Visible columns</ContextMenuLabel>
+          {(Object.keys(COLUMN_LABELS) as ListColumnId[]).map((id) => (
+            <ContextMenuCheckboxItem
+              key={id}
+              checked={columns[id]}
+              onCheckedChange={() => toggleColumn(id)}
+            >
+              {COLUMN_LABELS[id]}
+            </ContextMenuCheckboxItem>
+          ))}
+        </ContextMenuContent>
+      </ContextMenu>
 
       {/* List body */}
       <div className="flex-1 overflow-auto">
-        <div className="py-1">
+        <div className="px-2 py-2">
           {entries.map((entry) => (
             <ListRow
               key={entry.name}
               entry={entry}
               currentPath={currentPath}
               isSelected={isEntrySelected(entry)}
+              metadata={metadata[entry.name]}
+              columns={columns}
               onSelect={() => onSelect(entry)}
               onDoubleClick={() => onDoubleClick(entry)}
+              contextMenuHandlers={contextMenuHandlers}
             />
           ))}
         </div>
@@ -54,53 +152,98 @@ function ListRow({
   entry,
   currentPath,
   isSelected,
+  metadata,
+  columns,
   onSelect,
   onDoubleClick,
+  contextMenuHandlers,
 }: {
   entry: DirEntry;
   currentPath: string | null;
   isSelected: boolean;
+  metadata?: EntryMetadata;
+  columns: Record<ListColumnId, boolean>;
   onSelect: () => void;
   onDoubleClick: () => void;
+  contextMenuHandlers: FileViewChildProps["contextMenuHandlers"];
 }) {
   const imageSrc = useThumbnail(entry, currentPath);
 
   return (
-    <button
-      type="button"
-      onClick={onSelect}
-      onDoubleClick={onDoubleClick}
-      className={cn(
-        "relative flex w-full min-w-0 cursor-pointer select-none items-center gap-3 rounded-lg px-4 py-2.5 pl-5 text-left outline-none transition-colors",
-        "hover:bg-accent/60 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-        isSelected &&
-          "bg-accent text-accent-foreground hover:bg-accent/80 focus-visible:ring-accent"
-      )}
+    <EntryContextMenu
+      entry={entry}
+      currentPath={currentPath}
+      handlers={contextMenuHandlers}
     >
-      {/* Left accent when selected */}
-      <div
-        className={cn(
-          "absolute left-2 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full transition-colors",
-          isSelected ? "bg-primary" : "bg-transparent"
-        )}
-        aria-hidden
-      />
-      <div className="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded">
-        <EntryIcon
-          isDirectory={entry.isDirectory}
-          imageSrc={imageSrc}
-          className={imageSrc ? "size-9" : undefined}
-        />
+      <div className="contents">
+        <button
+          type="button"
+          onClick={onSelect}
+          onDoubleClick={onDoubleClick}
+          className={cn(
+            "relative flex w-full min-w-0 cursor-pointer select-none items-center gap-4 rounded-md px-3 py-2.5 pl-4 text-left outline-none transition-[color,background-color] duration-150",
+            "hover:bg-accent/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+            isSelected
+              ? "bg-accent/80 text-accent-foreground hover:bg-accent focus-visible:ring-accent"
+              : "text-foreground"
+          )}
+        >
+          <div
+            className={cn(
+              "absolute left-0 top-1/2 h-6 w-0.5 -translate-y-1/2 rounded-r-full bg-primary transition-opacity duration-150",
+              isSelected ? "opacity-100" : "opacity-0"
+            )}
+            aria-hidden
+          />
+          <div
+            className={cn(
+              "flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-md transition-colors",
+              entry.isDirectory
+                ? "bg-amber-500/10 dark:bg-amber-400/10"
+                : "bg-muted/60 dark:bg-muted/40"
+            )}
+          >
+            <EntryIcon
+              isDirectory={entry.isDirectory}
+              imageSrc={imageSrc}
+              className={imageSrc ? "size-10" : "size-5 text-muted-foreground"}
+            />
+          </div>
+          {columns.name ? (
+            <span
+              className="min-w-0 flex-1 truncate text-[15px] font-medium tracking-tight text-foreground"
+              title={entry.name}
+            >
+              {entry.name}
+            </span>
+          ) : (
+            <span className="min-w-0 flex-1" aria-hidden />
+          )}
+          {columns.type && (
+            <span className="w-20 shrink-0 text-right text-[13px] text-muted-foreground">
+              {entry.isDirectory ? "Folder" : "File"}
+            </span>
+          )}
+          {columns.size && (
+            <span className="w-24 shrink-0 text-right text-[13px] text-muted-foreground tabular-nums">
+              {metadata
+                ? formatFileSize(metadata.size)
+                : entry.isDirectory
+                  ? "—"
+                  : "…"}
+            </span>
+          )}
+          {columns.dateModified && (
+            <span className="w-36 shrink-0 text-right text-[13px] text-muted-foreground tabular-nums">
+              {metadata && metadata.mtime
+                ? formatDate(metadata.mtime)
+                : metadata
+                  ? "—"
+                  : "…"}
+            </span>
+          )}
+        </button>
       </div>
-      <span
-        className="min-w-0 flex-1 truncate font-medium text-foreground"
-        title={entry.name}
-      >
-        {entry.name}
-      </span>
-      <span className="w-16 shrink-0 text-right text-sm text-muted-foreground">
-        {entry.isDirectory ? "Folder" : "File"}
-      </span>
-    </button>
+    </EntryContextMenu>
   );
 }

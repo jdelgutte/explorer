@@ -8,7 +8,7 @@ export function ViewModeToggle() {
   const setViewMode = useViewStore((state) => state.setViewMode);
 
   return (
-      <ButtonGroup className="rounded-md border border-border">
+      <ButtonGroup className="rounded-lg border border-border/60 bg-muted/30">
         <Button
           type="button"
           variant={viewMode === "list" ? "secondary" : "ghost"}

@@ -1,5 +1,6 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
+import { ButtonGroup } from "@/shared/components/ui/button-group";
 import { useFileStore } from "@/features/file/store/file.store";
 
 export function NavigationButtons() {
@@ -15,7 +16,7 @@ export function NavigationButtons() {
     navigationIndex < navigationStack.length - 1;
 
   return (
-    <div className="flex items-center gap-0.5">
+    <ButtonGroup className="rounded-lg border border-border/60 bg-muted/30">
       <Button
         type="button"
         variant="ghost"
@@ -25,7 +26,7 @@ export function NavigationButtons() {
         disabled={!canGoBack}
         aria-label="Back"
       >
-        <ChevronLeft className="size-5" />
+        <ChevronLeft className="size-4" />
       </Button>
       <Button
         type="button"
@@ -36,8 +37,8 @@ export function NavigationButtons() {
         disabled={!canGoForward}
         aria-label="Forward"
       >
-        <ChevronRight className="size-5" />
+        <ChevronRight className="size-4" />
       </Button>
-    </div>
+    </ButtonGroup>
   );
 }

@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { fileApi } from "@/features/file/file.api";
 import { useCreateDialogStore } from "@/features/file/store/create-dialog.store";
 import { useFileStore } from "@/features/file/store/file.store";
+import { useNavigationStore } from "@/features/navigation/store/navigation.store";
 import { Button } from "@/shared/components/ui/button";
 import {
   Dialog,
@@ -24,7 +25,7 @@ const inputClassName = cn(
 
 export function CreateEntryDialog() {
   const { open, createType, closeCreateDialog } = useCreateDialogStore();
-  const currentPath = useFileStore((state) => state.currentPath);
+  const currentPath = useNavigationStore((state) => state.currentPath);
   const setEntries = useFileStore((state) => state.setEntries);
   const [name, setName] = useState("");
 

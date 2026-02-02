@@ -5,7 +5,7 @@ import { FileIcon, FolderIcon, Loader2, Search } from "lucide-react";
 import { useCallback, useEffect, useRef } from "react";
 import { useThrottleFn } from "ahooks";
 import { openPath } from "@tauri-apps/plugin-opener";
-import { useFileStore } from "@/features/file/store/file.store";
+import { useNavigationStore } from "@/features/navigation/store/navigation.store";
 import type { SearchResult } from "../search.api";
 import { searchApi } from "../search.api";
 import { useSearchStore } from "../store/search.store";
@@ -23,8 +23,8 @@ const MIN_QUERY_LENGTH = 3;
 const RESULTS_THROTTLE_MS = 150;
 
 export function SearchDialog() {
-  const currentPath = useFileStore((s) => s.currentPath);
-  const setCurrentPath = useFileStore((s) => s.setCurrentPath);
+  const currentPath = useNavigationStore((s) => s.currentPath);
+  const setCurrentPath = useNavigationStore((s) => s.setCurrentPath);
   const {
     searchDialogOpen: isOpen,
     setSearchDialogOpen,

@@ -4,6 +4,7 @@ import { openPath } from "@tauri-apps/plugin-opener";
 import { toast } from "sonner";
 import { useFileActions } from "@/features/file/useFileActions";
 import { useFileStore } from "../store/file.store";
+import { useNavigationStore } from "@/features/navigation/store/navigation.store";
 import { useViewStore } from "@/features/viewmode/view.store";
 import { useQuickAccessStore } from "@/features/quick-access/store/quick-access.store";
 import type { EntryContextMenuHandlers } from "./entry-context-menu";
@@ -22,13 +23,8 @@ export type FileViewChildProps = {
 };
 
 export function FileView() {
-  const {
-    entries,
-    currentPath,
-    selectedItem,
-    setCurrentPath,
-    setSelectedItem,
-  } = useFileStore();
+  const { entries, selectedItem, setSelectedItem } = useFileStore();
+  const { currentPath, setCurrentPath } = useNavigationStore();
   const viewMode = useViewStore((state) => state.viewMode);
 
   const isEntrySelected = (entry: DirEntry) =>

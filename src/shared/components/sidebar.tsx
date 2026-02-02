@@ -25,6 +25,7 @@ import { devicesApi } from "@/features/devices/devices.api";
 import type { MountableDevice } from "@/features/devices/devices.api";
 import { useEffect, useState } from "react";
 import { useFileStore } from "@/features/file/store/file.store";
+import { useNavigationStore } from "@/features/navigation/store/navigation.store";
 import { Separator } from "@/shared/components/ui/separator";
 import { QuickAccessList } from "@/features/quick-access/components/quick-access-list";
 import {
@@ -71,8 +72,8 @@ type SidebarProps = {
 export function Sidebar({
   className,
 }: SidebarProps) {
-  const currentPath = useFileStore((state) => state.currentPath);
-  const setCurrentPath = useFileStore((state) => state.setCurrentPath);
+  const currentPath = useNavigationStore((state) => state.currentPath);
+  const setCurrentPath = useNavigationStore((state) => state.setCurrentPath);
   const [selectedItem, setSelectedItem] = useState<SidebarItem>(SIDEBAR_ITEMS[0]);
   const [selectedDeviceMountPoint, setSelectedDeviceMountPoint] = useState<
     string | null

@@ -1,13 +1,13 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { ButtonGroup } from "@/shared/components/ui/button-group";
-import { useFileStore } from "@/features/file/store/file.store";
+import { useNavigationStore } from "@/features/navigation/store/navigation.store";
 
 export function NavigationButtons() {
-  const navigationIndex = useFileStore((s) => s.navigationIndex);
-  const navigationStack = useFileStore((s) => s.navigationStack);
-  const goBack = useFileStore((s) => s.goBack);
-  const goForward = useFileStore((s) => s.goForward);
+  const navigationIndex = useNavigationStore((s) => s.navigationIndex);
+  const navigationStack = useNavigationStore((s) => s.navigationStack);
+  const goBack = useNavigationStore((s) => s.goBack);
+  const goForward = useNavigationStore((s) => s.goForward);
 
   const canGoBack = navigationIndex > 0;
   const canGoForward =

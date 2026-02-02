@@ -3,6 +3,7 @@ import { DirEntry } from "@tauri-apps/plugin-fs";
 import { toast } from "sonner";
 import { fileApi } from "@/features/file/file.api";
 import { useFileStore } from "@/features/file/store/file.store";
+import { useNavigationStore } from "@/features/navigation/store/navigation.store";
 import { useClipboardStore } from "@/features/file/store/clipboard.store";
 
 /**
@@ -14,14 +15,15 @@ function getPathFromEntry(currentPath: string, entry: DirEntry): Promise<string>
 }
 
 async function getSelectedPath(): Promise<string | null> {
-  const { currentPath, selectedItem } = useFileStore.getState();
+  const currentPath = useNavigationStore.getState().currentPath;
+  const selectedItem = useFileStore.getState().selectedItem;
   if (!currentPath || !selectedItem) return null;
   return join(currentPath, selectedItem.name);
 }
 
 /** Copy: store paths in clipboard with mode "copy". */
 export async function doCopy(entry?: DirEntry): Promise<void> {
-  const { currentPath } = useFileStore.getState();
+  const currentPath = useNavigationStore.getState().currentPath;
   if (!currentPath) return;
 
   const path = entry
@@ -38,7 +40,7 @@ export async function doCopy(entry?: DirEntry): Promise<void> {
 
 /** Cut: store paths in clipboard with mode "cut". */
 export async function doCut(entry?: DirEntry): Promise<void> {
-  const { currentPath } = useFileStore.getState();
+  const currentPath = useNavigationStore.getState().currentPath;
   if (!currentPath) return;
 
   const path = entry
@@ -55,7 +57,8 @@ export async function doCut(entry?: DirEntry): Promise<void> {
 
 /** Paste: copy or move clipboard contents into current directory and refresh list. */
 export async function doPaste(): Promise<void> {
-  const { currentPath, setEntries } = useFileStore.getState();
+  const currentPath = useNavigationStore.getState().currentPath;
+  const setEntries = useFileStore.getState().setEntries;
   const { paths, mode, clearClipboard } = useClipboardStore.getState();
 
   if (!currentPath) {
@@ -91,7 +94,8 @@ export async function doPaste(): Promise<void> {
 
 /** Delete: move file or directory to system Trash. */
 export async function doDelete(entry?: DirEntry): Promise<void> {
-  const { currentPath, setEntries } = useFileStore.getState();
+  const currentPath = useNavigationStore.getState().currentPath;
+  const setEntries = useFileStore.getState().setEntries;
   if (!currentPath) return;
 
   const path = entry

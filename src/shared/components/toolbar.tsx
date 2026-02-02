@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Search } from "lucide-react";
 import { ViewModeToggle } from "@/features/viewmode/view-mode-toggle";
 import { NavigationButtons } from "@/features/navigation/components/navigation-buttons";
-import { useFileStore } from "@/features/file/store/file.store";
+import { useNavigationStore } from "@/features/navigation/store/navigation.store";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -17,8 +17,8 @@ type ToolbarProps = {
 };
 
 function ToolbarBreadcrumb() {
-  const currentPath = useFileStore((s) => s.currentPath);
-  const setCurrentPath = useFileStore((s) => s.setCurrentPath);
+  const currentPath = useNavigationStore((s) => s.currentPath);
+  const setCurrentPath = useNavigationStore((s) => s.setCurrentPath);
 
   const segments = currentPath
     ? currentPath.replace(/^\/+|\/+$/g, "").split("/").filter(Boolean)

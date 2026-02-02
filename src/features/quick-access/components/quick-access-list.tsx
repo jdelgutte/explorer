@@ -6,7 +6,7 @@ import {
 } from "@/shared/components/ui/context-menu";
 import { Folder, PinOff } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useFileStore } from "@/features/file/store/file.store";
+import { useNavigationStore } from "@/features/navigation/store/navigation.store";
 import {
   useQuickAccessStore,
   type QuickAccessItem,
@@ -23,7 +23,7 @@ export function QuickAccessList({
 }: QuickAccessListProps) {
   const items = useQuickAccessStore((s) => s.items);
   const remove = useQuickAccessStore((s) => s.remove);
-  const setCurrentPath = useFileStore((s) => s.setCurrentPath);
+  const setCurrentPath = useNavigationStore((s) => s.setCurrentPath);
 
   const handleSelect = (item: QuickAccessItem) => {
     onSelectQuickAccess(item);

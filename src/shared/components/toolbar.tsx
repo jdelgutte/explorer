@@ -86,9 +86,9 @@ export function Toolbar({ searchPlaceholder = "Search..." }: ToolbarProps) {
       <div className="h-6 w-px shrink-0 bg-border/50" aria-hidden />
 
       {/* Breadcrumb */}
-      <div className="flex min-w-0 flex-1 items-center overflow-hidden">
+      {/* <div className="flex min-w-0 flex-1 items-center overflow-hidden">
         <ToolbarBreadcrumb />
-      </div>
+      </div> */}
 
       {/* Separator */}
       <div className="h-6 w-px shrink-0 bg-border/50" aria-hidden />

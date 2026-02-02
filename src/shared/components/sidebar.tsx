@@ -60,7 +60,6 @@ export const SIDEBAR_ITEMS: SidebarItem[] = [
   { id: "music", label: "Music", icon: Music, getPath: audioDir },
   { id: "videos", label: "Videos", icon: Video, getPath: videoDir },
   { id: "trash", label: "Trash", icon: Trash2, getPath: () => fileApi.getTrashDir() },
-  { id: "other", label: "Other", icon: Folder, getPath: () => Promise.resolve("") },
 ];
 
 type SidebarProps = {

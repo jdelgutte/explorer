@@ -3,6 +3,7 @@ import { CommandPalette } from "@/features/command/components/command-palette";
 import { useFileShortcuts } from "@/features/file/useFileShortcuts";
 import { CreateEntryDialog } from "@/features/file/components/create-entry-dialog";
 import { FileView } from "@/features/file/components/file-view";
+import { TabBar } from "@/features/tabs/components/tab-bar";
 import { SearchDialog } from "@/features/search/components/search-dialog";
 import { useSearchDialogShortcut } from "@/features/search/useSearchDialogShortcut";
 import { Sidebar } from "@/shared/components/sidebar";
@@ -18,8 +19,11 @@ function App() {
       <Toolbar />
       <div className="flex flex-1 min-h-0">
         <Sidebar />
-        <main className="flex-1 overflow-auto">
-          <FileView />
+        <main className="flex flex-1 flex-col min-h-0 min-w-0">
+          <TabBar />
+          <div className="flex-1 min-h-0 overflow-auto">
+            <FileView />
+          </div>
         </main>
       </div>
       <CommandPalette />

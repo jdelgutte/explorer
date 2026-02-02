@@ -1,86 +1,137 @@
-import { create } from "zustand";
+import {
+  useTabsStore,
+  type TabNavigationState,
+} from "@/features/tabs/store/tabs.store";
 
-interface State {
-  /** Current folder path (also the path at navigationIndex in navigationStack). */
+/** Navigation state shape (for typing). */
+export interface NavigationState {
   currentPath: string;
-  /** Stack of paths visited during navigation (currentPath is pushed when it changes). */
   navigationStack: string[];
-  /** Index of current path in navigationStack (-1 when stack is empty). */
   navigationIndex: number;
 }
 
-interface Actions {
+export interface NavigationActions {
   setCurrentPath: (path: string) => void;
   goBack: () => void;
   goForward: () => void;
 }
 
-export const useNavigationStore = create<State & Actions>((set) => ({
-  currentPath: "",
-  navigationStack: [],
-  navigationIndex: -1,
-  setCurrentPath: (path) =>
-    set((state) => {
-      if (path === "" || path === state.currentPath) return state;
+/** Pure logic: compute new navigation state when setting path. */
+function setCurrentPathInNav(
+  nav: TabNavigationState,
+  path: string
+): TabNavigationState {
+  if (path === "" || path === nav.currentPath) return nav;
+  const { navigationStack, navigationIndex } = nav;
 
-      const { navigationStack, navigationIndex } = state;
+  if (
+    navigationIndex > 0 &&
+    navigationStack[navigationIndex - 1] === path
+  ) {
+    return {
+      currentPath: path,
+      navigationStack: nav.navigationStack,
+      navigationIndex: navigationIndex - 1,
+    };
+  }
+  if (
+    navigationIndex < navigationStack.length - 1 &&
+    navigationStack[navigationIndex + 1] === path
+  ) {
+    return {
+      currentPath: path,
+      navigationStack: nav.navigationStack,
+      navigationIndex: navigationIndex + 1,
+    };
+  }
+  const trimmedStack = navigationStack.slice(0, navigationIndex + 1);
+  const newStack =
+    trimmedStack[trimmedStack.length - 1] === path
+      ? trimmedStack
+      : [...trimmedStack, path];
+  const newIndex = newStack.length - 1;
+  return {
+    currentPath: path,
+    navigationStack: newStack,
+    navigationIndex: newIndex,
+  };
+}
 
-      // Back: new path is the previous entry in stack
-      if (
-        navigationIndex > 0 &&
-        navigationStack[navigationIndex - 1] === path
-      ) {
-        return {
-          currentPath: path,
-          navigationIndex: navigationIndex - 1,
-        };
-      }
+/** Pure logic: compute new navigation state when going back. */
+function goBackInNav(nav: TabNavigationState): TabNavigationState | null {
+  if (nav.navigationIndex <= 0) return null;
+  const newIndex = nav.navigationIndex - 1;
+  return {
+    ...nav,
+    currentPath: nav.navigationStack[newIndex],
+    navigationIndex: newIndex,
+  };
+}
 
-      // Forward: new path is the next entry in stack
-      if (
-        navigationIndex < navigationStack.length - 1 &&
-        navigationStack[navigationIndex + 1] === path
-      ) {
-        return {
-          currentPath: path,
-          navigationIndex: navigationIndex + 1,
-        };
-      }
+/** Pure logic: compute new navigation state when going forward. */
+function goForwardInNav(nav: TabNavigationState): TabNavigationState | null {
+  if (
+    nav.navigationIndex < 0 ||
+    nav.navigationIndex >= nav.navigationStack.length - 1
+  )
+    return null;
+  const newIndex = nav.navigationIndex + 1;
+  return {
+    ...nav,
+    currentPath: nav.navigationStack[newIndex],
+    navigationIndex: newIndex,
+  };
+}
 
-      // New navigation: trim "forward" history, push path, move index to end
-      const trimmedStack = navigationStack.slice(0, navigationIndex + 1);
-      const newStack =
-        trimmedStack[trimmedStack.length - 1] === path
-          ? trimmedStack
-          : [...trimmedStack, path];
-      const newIndex = newStack.length - 1;
+function setCurrentPath(path: string): void {
+  const tabs = useTabsStore.getState();
+  const active = tabs.activeTabId;
+  if (!active) return;
+  const nav = tabs.getNavigationState(active);
+  const newNav = setCurrentPathInNav(nav, path);
+  tabs.setTabNavigation(active, newNav);
+}
 
-      return {
-        currentPath: path,
-        navigationStack: newStack,
-        navigationIndex: newIndex,
-      };
-    }),
-  goBack: () =>
-    set((state) => {
-      if (state.navigationIndex <= 0) return state;
-      const newIndex = state.navigationIndex - 1;
-      return {
-        currentPath: state.navigationStack[newIndex],
-        navigationIndex: newIndex,
-      };
-    }),
-  goForward: () =>
-    set((state) => {
-      if (
-        state.navigationIndex < 0 ||
-        state.navigationIndex >= state.navigationStack.length - 1
-      )
-        return state;
-      const newIndex = state.navigationIndex + 1;
-      return {
-        currentPath: state.navigationStack[newIndex],
-        navigationIndex: newIndex,
-      };
-    }),
-}));
+function goBack(): void {
+  const tabs = useTabsStore.getState();
+  const active = tabs.activeTabId;
+  if (!active) return;
+  const nav = tabs.getNavigationState(active);
+  const newNav = goBackInNav(nav);
+  if (newNav) tabs.setTabNavigation(active, newNav);
+}
+
+function goForward(): void {
+  const tabs = useTabsStore.getState();
+  const active = tabs.activeTabId;
+  if (!active) return;
+  const nav = tabs.getNavigationState(active);
+  const newNav = goForwardInNav(nav);
+  if (newNav) tabs.setTabNavigation(active, newNav);
+}
+
+/** Facade over the active tab's navigation state in the tabs store. */
+function useNavigationStore(): NavigationState & NavigationActions;
+function useNavigationStore<T>(
+  selector: (state: NavigationState & NavigationActions) => T
+): T;
+function useNavigationStore<T>(
+  selector?: (state: NavigationState & NavigationActions) => T
+): T | (NavigationState & NavigationActions) {
+  const nav = useTabsStore((s) => s.getNavigationState(s.activeTabId));
+  const state = {
+    ...nav,
+    setCurrentPath,
+    goBack,
+    goForward,
+  };
+  if (selector) return selector(state) as T;
+  return state as NavigationState & NavigationActions;
+}
+
+useNavigationStore.getState = (): NavigationState => {
+  const tabs = useTabsStore.getState();
+  return tabs.getNavigationState(tabs.activeTabId);
+};
+
+export { useNavigationStore };

@@ -6,7 +6,7 @@ alwaysApply: false
 
 # Naming conventions
 
-- **Hooks**: Use camelCase with `use` prefix. File name must match: `useClipboardShortcut.ts`, `useSearchDialogShortcut.ts`, not `use-clipboard-shortcut.ts`.
+- **Hooks**: Use camelCase with `use` prefix. File name must match: `useFileShortcuts.ts`, `useSearchDialogShortcut.ts`, not `use-file-shortcuts.ts`.
 
 - **Components**: Use kebab-case for file names: `entry-context-menu.tsx`, `file-view.tsx`, `create-entry-dialog.tsx`, not `EntryContextMenu.tsx` or `entryContextMenu.tsx`.
 

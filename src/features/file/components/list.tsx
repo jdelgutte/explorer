@@ -18,7 +18,7 @@ import {
   type ListColumnId,
 } from "../store/list-columns.store";
 import { formatDate, formatFileSize } from "../utils/format";
-import { useThumbnail } from "../use-thumbnail";
+import { useThumbnail } from "../useThumbnail";
 
 const COLUMN_LABELS: Record<ListColumnId, string> = {
   name: "Name",

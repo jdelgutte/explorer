@@ -4,7 +4,7 @@ import { EmptyFile } from "./empty-file";
 import { EntryContextMenu } from "./entry-context-menu";
 import { EntryIcon } from "./entry-icon";
 import type { FileViewChildProps } from "./file-view";
-import { useThumbnail } from "../use-thumbnail";
+import { useThumbnail } from "../useThumbnail";
 
 export function FileGrid({
   entries,

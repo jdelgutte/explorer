@@ -1,0 +1,13 @@
+---
+description: React and Zustand best practices
+globs: src/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# React and Zustand patterns
+
+- **React**: Prefer functional components. Extract reusable logic into custom hooks (`use*`). Use `useCallback` for handlers passed to children when they depend on props/state. Avoid unnecessary state; derive values when possible.
+
+- **Zustand**: Keep stores small and focused. Use `getState()` when you need store access outside React (e.g. in shortcut callbacks or plain async functions). For selectors, prefer `useStore((s) => s.x)` to avoid re-renders on unrelated changes. Use `persist` from `zustand/middleware` when state must survive reloads.
+
+- **Side effects**: Register global shortcuts or listeners in `useEffect` with a cleanup that unregisters. Use a `cancelled` flag in async callbacks to avoid updating state after unmount.

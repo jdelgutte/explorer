@@ -1,0 +1,13 @@
+---
+description: DRY and Tauri API placement
+globs: src/features/**/*
+alwaysApply: false
+---
+
+# DRY and Tauri API
+
+- **DRY (Don't Repeat Yourself)**: Shared logic (e.g. copy/paste/cut) must live in a single place. Context menu and global shortcuts should call the same functions, not duplicate logic.
+
+- **Tauri invoke**: All `invoke()` calls to the Rust backend must be defined in the feature’s `*.api.ts` file (e.g. `file.api.ts`, `devices.api.ts`). Do not call `invoke()` from components or hooks; expose methods on the feature API instead.
+
+- **Tauri plugins**: Use plugin APIs (e.g. `@tauri-apps/plugin-fs`) from the feature API layer when they perform I/O or system operations, so components/hooks stay thin and testable.

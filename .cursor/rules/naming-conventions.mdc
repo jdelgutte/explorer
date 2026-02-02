@@ -1,0 +1,15 @@
+---
+description: Naming conventions for hooks and components
+globs: src/features/**/*
+alwaysApply: false
+---
+
+# Naming conventions
+
+- **Hooks**: Use camelCase with `use` prefix. File name must match: `useClipboardShortcut.ts`, `useSearchDialogShortcut.ts`, not `use-clipboard-shortcut.ts`.
+
+- **Components**: Use kebab-case for file names: `entry-context-menu.tsx`, `file-view.tsx`, `create-entry-dialog.tsx`, not `EntryContextMenu.tsx` or `entryContextMenu.tsx`.
+
+- **Stores**: Prefer kebab or dot: `clipboard.store.ts`, `file.store.ts`, `quick-access.store.ts`.
+
+- **API modules**: `*.api.ts` at feature root, e.g. `file.api.ts`, `search.api.ts`.

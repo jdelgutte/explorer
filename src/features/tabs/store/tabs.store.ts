@@ -47,12 +47,20 @@ interface TabsState {
   activeTabId: string | null;
   /** Per-tab navigation + file state. */
   tabState: Record<string, TabSlice>;
+  /** Tab IDs selected with Ctrl+click (multi-select). */
+  selectedTabIds: string[];
 }
 
 interface TabsActions {
   addTab: () => void;
   closeTab: (id: string) => void;
+  /** Close all tabs whose IDs are in the current selection (e.g. after multi-select). */
+  closeSelectedTabs: () => void;
   setActiveTab: (id: string) => void;
+  /** Select a tab. With additive (e.g. Ctrl+click), toggles this tab in selection; otherwise selects only this tab. */
+  selectTab: (id: string, additive: boolean) => void;
+  clearTabSelection: () => void;
+  renameTab: (id: string, label: string) => void;
   getActiveTabId: () => string | null;
   getNavigationState: (tabId: string | null) => TabNavigationState;
   getFileState: (tabId: string | null) => TabFileState;
@@ -70,6 +78,7 @@ export const useTabsStore = create<TabsState & TabsActions>((set, get) => ({
   tabState: {
     [INITIAL_TAB_ID]: createDefaultTabSlice(),
   },
+  selectedTabIds: [],
 
   addTab: () => {
     const id = `tab-${Date.now()}`;
@@ -77,6 +86,7 @@ export const useTabsStore = create<TabsState & TabsActions>((set, get) => ({
     set((state) => ({
       tabs: [...state.tabs, { id, label }],
       activeTabId: id,
+      selectedTabIds: [],
       tabState: {
         ...state.tabState,
         [id]: createDefaultTabSlice(),
@@ -102,12 +112,62 @@ export const useTabsStore = create<TabsState & TabsActions>((set, get) => ({
         tabs: newTabs,
         activeTabId: newActive,
         tabState: newState,
+        selectedTabIds: state.selectedTabIds.filter((sid) => sid !== id),
+      };
+    });
+  },
+
+  closeSelectedTabs: () => {
+    const { selectedTabIds } = get();
+    if (selectedTabIds.length === 0) return;
+    set((state) => {
+      const toRemove = new Set(selectedTabIds);
+      const newTabs = state.tabs.filter((t) => !toRemove.has(t.id));
+      if (newTabs.length === 0) return state;
+      const newState = { ...state.tabState };
+      for (const id of toRemove) delete newState[id];
+      const activeId = state.activeTabId;
+      let newActive = activeId;
+      if (activeId && toRemove.has(activeId)) {
+        const idx = state.tabs.findIndex((t) => t.id === activeId);
+        if (idx >= newTabs.length) newActive = newTabs[newTabs.length - 1].id;
+        else newActive = newTabs[Math.min(idx, newTabs.length - 1)].id;
+      }
+      return {
+        tabs: newTabs,
+        activeTabId: newActive,
+        tabState: newState,
+        selectedTabIds: [],
       };
     });
   },
 
   setActiveTab: (id) => {
     set({ activeTabId: id });
+  },
+
+  selectTab: (id, additive) => {
+    set((state) => {
+      if (additive) {
+        const set = new Set(state.selectedTabIds);
+        if (set.has(id)) set.delete(id);
+        else set.add(id);
+        return { selectedTabIds: [...set], activeTabId: id };
+      }
+      return { selectedTabIds: [id], activeTabId: id };
+    });
+  },
+
+  clearTabSelection: () => {
+    set({ selectedTabIds: [] });
+  },
+
+  renameTab: (id, label) => {
+    const trimmed = label.trim();
+    if (!trimmed) return;
+    set((state) => ({
+      tabs: state.tabs.map((t) => (t.id === id ? { ...t, label: trimmed } : t)),
+    }));
   },
 
   getActiveTabId: () => get().activeTabId,

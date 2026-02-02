@@ -2,6 +2,7 @@ import { join } from "@tauri-apps/api/path";
 import { DirEntry } from "@tauri-apps/plugin-fs";
 import { openPath } from "@tauri-apps/plugin-opener";
 import { toast } from "sonner";
+import { useRenameDialogStore } from "@/features/file/store/rename-dialog.store";
 import { useFileActions } from "@/features/file/useFileActions";
 import { useFileStore } from "../store/file.store";
 import { useNavigationStore } from "@/features/navigation/store/navigation.store";
@@ -45,11 +46,12 @@ export function FileView() {
 
   const addToQuickAccess = useQuickAccessStore((s) => s.add);
   const hasPathInQuickAccess = useQuickAccessStore((s) => s.hasPath);
+  const openRenameDialog = useRenameDialogStore((s) => s.openRenameDialog);
   const { copy, cut, paste, deleteEntry } = useFileActions();
 
   const contextMenuHandlers: EntryContextMenuHandlers = {
     onOpen: handleDoubleClick,
-    onRename: () => toast.info("Rename – coming soon"),
+    onRename: (entry) => openRenameDialog(entry),
     onProperties: () => toast.info("Properties – coming soon"),
     onCopy: (entry) => copy(entry),
     onCut: (entry) => cut(entry),

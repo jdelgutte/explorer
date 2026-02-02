@@ -1,5 +1,7 @@
 import { useEffect } from "react";
 import { doCopy, doCut, doPaste, doDelete } from "./file.actions";
+import { useRenameDialogStore } from "./store/rename-dialog.store";
+import { useFileStore } from "./store/file.store";
 
 /** Returns true if the element is an editable field (we should not steal Ctrl+C/X/V). */
 function isEditableElement(el: EventTarget | null): boolean {
@@ -11,13 +13,24 @@ function isEditableElement(el: EventTarget | null): boolean {
 }
 
 /**
- * Registers Ctrl+C / Ctrl+X / Ctrl+V / Ctrl+Suppr via JavaScript keydown (not Tauri global shortcut)
+ * Registers Ctrl+C / Ctrl+X / Ctrl+V / Ctrl+Suppr and F2 (rename) via JavaScript keydown (not Tauri global shortcut)
  * so they don't conflict with the system. Only handles when focus is not in an input/textarea.
  * Calls the same actions as the context menu (DRY).
  */
 export function useFileShortcuts() {
+  const openRenameDialog = useRenameDialogStore((s) => s.openRenameDialog);
+  const selectedItem = useFileStore((s) => s.selectedItem);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "F2") {
+        if (!isEditableElement(e.target) && selectedItem) {
+          e.preventDefault();
+          openRenameDialog(selectedItem);
+        }
+        return;
+      }
+
       if (isEditableElement(e.target)) return;
       const isMac =
         (navigator as Navigator & { userAgentData?: { platform: string } })
@@ -49,5 +62,5 @@ export function useFileShortcuts() {
 
     document.addEventListener("keydown", handleKeyDown, true);
     return () => document.removeEventListener("keydown", handleKeyDown, true);
-  }, []);
+  }, [openRenameDialog, selectedItem]);
 }

@@ -92,6 +92,37 @@ export async function doPaste(): Promise<void> {
   }
 }
 
+/** Rename: renames a file or directory in the current folder. */
+export async function doRename(entry: DirEntry, newName: string): Promise<void> {
+  const currentPath = useNavigationStore.getState().currentPath;
+  const setEntries = useFileStore.getState().setEntries;
+  if (!currentPath) return;
+
+  const trimmed = newName.trim();
+  if (!trimmed) {
+    toast.info("Name cannot be empty");
+    return;
+  }
+  if (trimmed.includes("/") || trimmed.includes("\\")) {
+    toast.error("Name cannot contain path separators");
+    return;
+  }
+  if (trimmed === entry.name) {
+    toast.info("Name unchanged");
+    return;
+  }
+
+  try {
+    await fileApi.renameEntry(currentPath, entry.name, trimmed);
+    const entries = await fileApi.getEntries(currentPath);
+    setEntries(entries);
+    toast.success("Renamed");
+  } catch (err) {
+    console.error("Rename failed:", err);
+    toast.error("Rename failed");
+  }
+}
+
 /** Delete: move file or directory to system Trash. */
 export async function doDelete(entry?: DirEntry): Promise<void> {
   const currentPath = useNavigationStore.getState().currentPath;

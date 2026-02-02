@@ -98,4 +98,18 @@ export const fileApi = {
     const destPath = await join(destDir, baseName);
     await rename(srcPath, destPath);
   },
+
+  /**
+   * Renames a file or directory within the same parent directory.
+   * newName must not contain path separators.
+   */
+  renameEntry: async (
+    parentPath: string,
+    oldName: string,
+    newName: string,
+  ): Promise<void> => {
+    const oldPath = await join(parentPath, oldName);
+    const newPath = await join(parentPath, newName);
+    await rename(oldPath, newPath);
+  },
 };

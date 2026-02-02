@@ -69,6 +69,7 @@ export function EntryContextMenu({
         <ContextMenuItem onSelect={handleRename}>
           <Pencil className="size-4" />
           Rename
+          <ContextMenuShortcut>F2</ContextMenuShortcut>
         </ContextMenuItem>
         <ContextMenuItem onSelect={handleProperties}>
           <Info className="size-4" />

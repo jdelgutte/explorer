@@ -1,6 +1,14 @@
 import { join } from "@tauri-apps/api/path";
 import { invoke } from "@tauri-apps/api/core";
-import { DirEntry, mkdir, readDir, stat, writeTextFile } from "@tauri-apps/plugin-fs";
+import {
+  copyFile,
+  DirEntry,
+  mkdir,
+  readDir,
+  rename,
+  stat,
+  writeTextFile,
+} from "@tauri-apps/plugin-fs";
 
 export type EntryMetadata = {
   size: number;
@@ -55,5 +63,39 @@ export const fileApi = {
   createFolder: async (parentPath: string, name: string): Promise<void> => {
     const path = await join(parentPath, name);
     await mkdir(path);
+  },
+
+  /**
+   * Copies a file or directory (recursively) from srcPath into destDir.
+   * Destination is destDir/basename(srcPath). Overwrites if it exists.
+   */
+  copyPath: async (srcPath: string, destDir: string): Promise<void> => {
+    const info = await stat(srcPath);
+    const baseName = srcPath.replace(/^.*[/\\]/, "") || srcPath;
+    const destPath = await join(destDir, baseName);
+
+    if (info.isFile) {
+      await copyFile(srcPath, destPath);
+      return;
+    }
+    if (info.isDirectory) {
+      await mkdir(destPath, { recursive: true });
+      const entries = await readDir(srcPath);
+      for (const entry of entries) {
+        if (entry.name.startsWith(".")) continue;
+        const srcChild = await join(srcPath, entry.name);
+        await fileApi.copyPath(srcChild, destPath);
+      }
+    }
+  },
+
+  /**
+   * Moves a file or directory from srcPath into destDir (rename).
+   * Destination is destDir/basename(srcPath).
+   */
+  movePath: async (srcPath: string, destDir: string): Promise<void> => {
+    const baseName = srcPath.replace(/^.*[/\\]/, "") || srcPath;
+    const destPath = await join(destDir, baseName);
+    await rename(srcPath, destPath);
   },
 };

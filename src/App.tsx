@@ -1,5 +1,6 @@
 import "./App.css";
 import { CommandPalette } from "@/features/command/components/command-palette";
+import { useClipboardShortcut } from "@/features/clipboard/useClipboardShortcut";
 import { CreateEntryDialog } from "@/features/file/components/create-entry-dialog";
 import { FileView } from "@/features/file/components/file-view";
 import { SearchDialog } from "@/features/search/components/search-dialog";
@@ -10,6 +11,7 @@ import { Toolbar } from "@/shared/components/toolbar";
 
 function App() {
   useSearchDialogShortcut();
+  useClipboardShortcut();
 
   return (
     <div className="flex h-screen flex-col">

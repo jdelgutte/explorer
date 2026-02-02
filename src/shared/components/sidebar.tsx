@@ -134,9 +134,32 @@ export function Sidebar({
     }
   }, [currentPath, quickAccessItems]);
 
+  // Sync sidebar place selection: when navigating, highlight the place that contains currentPath (e.g. Documents when in ~/Documents/foo)
   useEffect(() => {
     if (!currentPath) return;
-    setSelectedItem(SIDEBAR_ITEMS.find((item) => item.getPath().then((path) => path.includes(currentPath))) || SIDEBAR_ITEMS[0]);
+    let cancelled = false;
+    (async () => {
+      const normalizedCurrent = currentPath.replace(/\/+$/, "") || "/";
+      let bestMatch: SidebarItem | null = null;
+      let bestMatchLength = -1;
+      for (const item of SIDEBAR_ITEMS) {
+        const itemPath = await item.getPath();
+        const normalizedItem = itemPath.replace(/\/+$/, "") || "/";
+        const isInside =
+          normalizedCurrent === normalizedItem ||
+          normalizedCurrent.startsWith(normalizedItem + "/");
+        if (isInside && normalizedItem.length > bestMatchLength) {
+          bestMatchLength = normalizedItem.length;
+          bestMatch = item;
+        }
+      }
+      if (!cancelled && bestMatch) {
+        setSelectedItem(bestMatch);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [currentPath]);
 
   // Initial load: set currentPath from sidebar selection when empty

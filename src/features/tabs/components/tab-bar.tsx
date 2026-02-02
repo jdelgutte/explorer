@@ -1,7 +1,7 @@
 import { Plus, X } from "lucide-react";
-import { Button } from "@/shared/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { useTabsStore } from "@/features/tabs/store/tabs.store";
+import { Button } from "@/shared/components/ui/button";
 
 export function TabBar() {
   const tabs = useTabsStore((s) => s.tabs);
@@ -24,7 +24,7 @@ export function TabBar() {
             <TabsTrigger
               key={tab.id}
               value={tab.id}
-              className="group flex min-w-0 max-w-40 items-center justify-between gap-1.5 overflow-hidden rounded-b-none border-x border-t bg-muted px-3 py-2 text-sm font-medium data-[state=active]:z-10 data-[state=active]:bg-background data-[state=active]:shadow-none"
+              className="group flex min-w-0 flex-1 items-center justify-between gap-1.5 overflow-hidden rounded-b-none border-x border-t bg-muted px-3 py-2 text-sm font-medium data-[state=active]:z-10 data-[state=active]:bg-background data-[state=active]:shadow-none"
             >
               <span className="truncate">{tab.label}</span>
               <button
@@ -40,20 +40,16 @@ export function TabBar() {
               </button>
             </TabsTrigger>
           ))}
+          <Button
+            type="button"
+            aria-label="New tab"
+            onClick={addTab}
+            className="size-8 shrink-0 rounded-b-none border-x border-t border-border bg-muted text-muted-foreground transition-colors hover:bg-muted-foreground/10 hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring/30 focus:ring-inset"
+          >
+            <Plus className="size-4" />
+          </Button>
         </TabsList>
       </Tabs>
-      <div className="flex items-center border-x border-t border-border bg-muted px-1 py-2">
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className="size-8 shrink-0 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted-foreground/10"
-          onClick={addTab}
-          aria-label="New tab"
-        >
-          <Plus className="size-4" />
-        </Button>
-      </div>
     </div>
   );
 }

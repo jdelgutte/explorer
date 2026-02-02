@@ -2,7 +2,7 @@ import { join } from "@tauri-apps/api/path";
 import { DirEntry } from "@tauri-apps/plugin-fs";
 import { openPath } from "@tauri-apps/plugin-opener";
 import { toast } from "sonner";
-import { useClipboardActions } from "@/features/clipboard/useClipboardActions";
+import { useFileActions } from "@/features/file/useFileActions";
 import { useFileStore } from "../store/file.store";
 import { useViewStore } from "@/features/viewmode/view.store";
 import { useQuickAccessStore } from "@/features/quick-access/store/quick-access.store";
@@ -49,7 +49,7 @@ export function FileView() {
 
   const addToQuickAccess = useQuickAccessStore((s) => s.add);
   const hasPathInQuickAccess = useQuickAccessStore((s) => s.hasPath);
-  const { copy, cut, paste } = useClipboardActions();
+  const { copy, cut, paste, deleteEntry } = useFileActions();
 
   const contextMenuHandlers: EntryContextMenuHandlers = {
     onOpen: handleDoubleClick,
@@ -58,7 +58,7 @@ export function FileView() {
     onCopy: (entry) => copy(entry),
     onCut: (entry) => cut(entry),
     onPaste: () => paste(),
-    onDelete: () => toast.info("Delete – coming soon"),
+    onDelete: (entry) => deleteEntry(entry),
     onAddToQuickAccess:
       currentPath
         ? (entry: DirEntry) => {

@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { doCopy, doCut, doPaste } from "./clipboard.actions";
+import { doCopy, doCut, doPaste, doDelete } from "./file.actions";
 
 /** Returns true if the element is an editable field (we should not steal Ctrl+C/X/V). */
 function isEditableElement(el: EventTarget | null): boolean {
@@ -11,11 +11,11 @@ function isEditableElement(el: EventTarget | null): boolean {
 }
 
 /**
- * Registers Ctrl+C / Ctrl+X / Ctrl+V via JavaScript keydown (not Tauri global shortcut)
+ * Registers Ctrl+C / Ctrl+X / Ctrl+V / Ctrl+Suppr via JavaScript keydown (not Tauri global shortcut)
  * so they don't conflict with the system. Only handles when focus is not in an input/textarea.
  * Calls the same actions as the context menu (DRY).
  */
-export function useClipboardShortcut() {
+export function useFileShortcuts() {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (isEditableElement(e.target)) return;
@@ -38,6 +38,11 @@ export function useClipboardShortcut() {
       if (e.key.toLowerCase() === "v") {
         e.preventDefault();
         doPaste();
+        return;
+      }
+      if (e.key === "Delete") {
+        e.preventDefault();
+        doDelete();
         return;
       }
     };

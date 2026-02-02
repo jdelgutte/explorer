@@ -94,6 +94,7 @@ export function EntryContextMenu({
         <ContextMenuItem onSelect={handleDelete} variant="destructive">
           <Trash2 className="size-4" />
           Delete
+          <ContextMenuShortcut>Ctrl+Suppr</ContextMenuShortcut>
         </ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>

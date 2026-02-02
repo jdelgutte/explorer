@@ -3,10 +3,10 @@ import { DirEntry } from "@tauri-apps/plugin-fs";
 import { toast } from "sonner";
 import { fileApi } from "@/features/file/file.api";
 import { useFileStore } from "@/features/file/store/file.store";
-import { useClipboardStore } from "./store/clipboard.store";
+import { useClipboardStore } from "@/features/file/store/clipboard.store";
 
 /**
- * Single source of truth for copy/cut/paste. Used by context menu and global shortcuts (DRY).
+ * Single source of truth for copy/cut/paste/delete. Used by context menu and global shortcuts (DRY).
  */
 
 function getPathFromEntry(currentPath: string, entry: DirEntry): Promise<string> {
@@ -86,5 +86,30 @@ export async function doPaste(): Promise<void> {
   } catch (err) {
     console.error("Paste failed:", err);
     toast.error("Paste failed");
+  }
+}
+
+/** Delete: move file or directory to system Trash. */
+export async function doDelete(entry?: DirEntry): Promise<void> {
+  const { currentPath, setEntries } = useFileStore.getState();
+  if (!currentPath) return;
+
+  const path = entry
+    ? await getPathFromEntry(currentPath, entry)
+    : await getSelectedPath();
+  if (!path) {
+    toast.info("Select an item to delete");
+    return;
+  }
+
+  try {
+    const trashDir = await fileApi.getTrashDir();
+    await fileApi.movePath(path, trashDir);
+    const entries = await fileApi.getEntries(currentPath);
+    setEntries(entries);
+    toast.success("Moved to Trash");
+  } catch (err) {
+    console.error("Delete failed:", err);
+    toast.error("Delete failed");
   }
 }

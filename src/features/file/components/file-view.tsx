@@ -8,6 +8,7 @@ import { useFileStore } from "../store/file.store";
 import { useNavigationStore } from "@/features/navigation/store/navigation.store";
 import { useViewStore } from "@/features/viewmode/view.store";
 import { useQuickAccessStore } from "@/features/quick-access/store/quick-access.store";
+import { useRecentStore } from "@/features/recent/store/recent.store";
 import { toasts } from "@/shared/toasts";
 import type { EntryContextMenuHandlers } from "./entry-context-menu";
 import { FileGrid } from "./grid";
@@ -39,6 +40,8 @@ export function FileView() {
     selectEntry(entry, additive);
   };
 
+  const addRecent = useRecentStore((s) => s.add);
+
   const handleDoubleClick = async (entry: DirEntry) => {
     const path = await join(currentPath, entry.name);
     if (entry.isDirectory) {
@@ -50,6 +53,7 @@ export function FileView() {
         if (isAccessDeniedError(err)) toasts.accessDenied();
       }
     } else {
+      addRecent(path, entry.name, false);
       await openPath(path);
     }
   };

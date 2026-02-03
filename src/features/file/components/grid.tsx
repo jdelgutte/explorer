@@ -28,7 +28,7 @@ export function FileGrid({
               entry={entry}
               currentPath={currentPath}
               isSelected={isEntrySelected(entry)}
-              onClick={() => onSelect(entry)}
+              onClick={(e) => onSelect(entry, e.ctrlKey || e.metaKey)}
               onDoubleClick={() => onDoubleClick(entry)}
               contextMenuHandlers={contextMenuHandlers}
             />
@@ -50,7 +50,7 @@ function FileGridItem({
   entry: DirEntry;
   currentPath: string | null;
   isSelected: boolean;
-  onClick: () => void;
+  onClick: (e: React.MouseEvent) => void;
   onDoubleClick: () => void;
   contextMenuHandlers: FileViewChildProps["contextMenuHandlers"];
 }) {

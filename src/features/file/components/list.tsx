@@ -115,7 +115,7 @@ export function FileList({
               isSelected={isEntrySelected(entry)}
               metadata={metadata[entry.name]}
               columns={columns}
-              onSelect={() => onSelect(entry)}
+              onSelect={(e) => onSelect(entry, e.ctrlKey || e.metaKey)}
               onDoubleClick={() => onDoubleClick(entry)}
               contextMenuHandlers={contextMenuHandlers}
             />
@@ -141,7 +141,7 @@ function ListRow({
   isSelected: boolean;
   metadata?: EntryMetadata;
   columns: Record<ListColumnId, boolean>;
-  onSelect: () => void;
+  onSelect: (e: React.MouseEvent) => void;
   onDoubleClick: () => void;
   contextMenuHandlers: FileViewChildProps["contextMenuHandlers"];
 }) {

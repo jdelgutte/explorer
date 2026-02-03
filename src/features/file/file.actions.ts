@@ -14,11 +14,13 @@ function getPathFromEntry(currentPath: string, entry: DirEntry): Promise<string>
   return join(currentPath, entry.name);
 }
 
-async function getSelectedPath(): Promise<string | null> {
+async function getSelectedPaths(): Promise<string[]> {
   const currentPath = useNavigationStore.getState().currentPath;
-  const selectedItem = useFileStore.getState().selectedItem;
-  if (!currentPath || !selectedItem) return null;
-  return join(currentPath, selectedItem.name);
+  const selectedItems = useFileStore.getState().selectedItems;
+  if (!currentPath || selectedItems.length === 0) return [];
+  return Promise.all(
+    selectedItems.map((e) => join(currentPath, e.name)),
+  );
 }
 
 /** Copy: store paths in clipboard with mode "copy". */
@@ -26,15 +28,15 @@ export async function doCopy(entry?: DirEntry): Promise<void> {
   const currentPath = useNavigationStore.getState().currentPath;
   if (!currentPath) return;
 
-  const path = entry
-    ? await getPathFromEntry(currentPath, entry)
-    : await getSelectedPath();
-  if (!path) {
+  const paths = entry
+    ? [await getPathFromEntry(currentPath, entry)]
+    : await getSelectedPaths();
+  if (paths.length === 0) {
     toasts.selectItemToCopy();
     return;
   }
 
-  useClipboardStore.getState().setClipboard([path], "copy");
+  useClipboardStore.getState().setClipboard(paths, "copy");
   toasts.copiedToClipboard();
 }
 
@@ -43,15 +45,15 @@ export async function doCut(entry?: DirEntry): Promise<void> {
   const currentPath = useNavigationStore.getState().currentPath;
   if (!currentPath) return;
 
-  const path = entry
-    ? await getPathFromEntry(currentPath, entry)
-    : await getSelectedPath();
-  if (!path) {
+  const paths = entry
+    ? [await getPathFromEntry(currentPath, entry)]
+    : await getSelectedPaths();
+  if (paths.length === 0) {
     toasts.selectItemToCut();
     return;
   }
 
-  useClipboardStore.getState().setClipboard([path], "cut");
+  useClipboardStore.getState().setClipboard(paths, "cut");
   toasts.cutToClipboard();
 }
 
@@ -122,23 +124,25 @@ export async function doRename(entry: DirEntry, newName: string): Promise<void> 
   }
 }
 
-/** Delete: move file or directory to system Trash. */
+/** Delete: move file(s) or directory(ies) to system Trash. */
 export async function doDelete(entry?: DirEntry): Promise<void> {
   const currentPath = useNavigationStore.getState().currentPath;
   const setEntries = useFileStore.getState().setEntries;
   if (!currentPath) return;
 
-  const path = entry
-    ? await getPathFromEntry(currentPath, entry)
-    : await getSelectedPath();
-  if (!path) {
+  const paths = entry
+    ? [await getPathFromEntry(currentPath, entry)]
+    : await getSelectedPaths();
+  if (paths.length === 0) {
     toasts.selectItemToDelete();
     return;
   }
 
   try {
     const trashDir = await fileApi.getTrashDir();
-    await fileApi.movePath(path, trashDir);
+    for (const path of paths) {
+      await fileApi.movePath(path, trashDir);
+    }
     const entries = await fileApi.getEntries(currentPath);
     setEntries(entries);
     toasts.movedToTrash();

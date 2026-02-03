@@ -17,28 +17,32 @@ import { FileList } from "./list";
 export type FileViewChildProps = {
   entries: DirEntry[];
   currentPath: string | null;
-  selectedItem: DirEntry | null;
   isEntrySelected: (entry: DirEntry) => boolean;
-  onSelect: (entry: DirEntry) => void;
+  onSelect: (entry: DirEntry, additive: boolean) => void;
   onDoubleClick: (entry: DirEntry) => void;
   contextMenuHandlers: EntryContextMenuHandlers;
 };
 
 export function FileView() {
-  const { entries, selectedItem, setSelectedItem } = useFileStore();
+  const { entries, selectedItems, selectEntry, clearSelection } =
+    useFileStore();
   const { currentPath, setCurrentPath } = useNavigationStore();
   const viewMode = useViewStore((state) => state.viewMode);
 
   const isEntrySelected = (entry: DirEntry) =>
-    selectedItem !== null &&
-    selectedItem.name === entry.name &&
-    selectedItem.isDirectory === entry.isDirectory;
+    selectedItems.some(
+      (s) => s.name === entry.name && s.isDirectory === entry.isDirectory,
+    );
+
+  const handleSelect = (entry: DirEntry, additive: boolean) => {
+    selectEntry(entry, additive);
+  };
 
   const handleDoubleClick = async (entry: DirEntry) => {
     if (entry.isDirectory) {
       const nextPath = await join(currentPath, entry.name);
       setCurrentPath(nextPath);
-      setSelectedItem(null);
+      clearSelection();
     } else {
       const path = await join(currentPath, entry.name);
       await openPath(path);
@@ -80,9 +84,8 @@ export function FileView() {
   const childProps: FileViewChildProps = {
     entries,
     currentPath,
-    selectedItem,
     isEntrySelected,
-    onSelect: setSelectedItem,
+    onSelect: handleSelect,
     onDoubleClick: handleDoubleClick,
     contextMenuHandlers,
   };

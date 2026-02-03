@@ -11,7 +11,7 @@ export interface TabNavigationState {
 /** File state for a single tab (mirrors file.store shape). */
 export interface TabFileState {
   entries: DirEntry[];
-  selectedItem: DirEntry | null;
+  selectedItems: DirEntry[];
 }
 
 export interface TabSlice {

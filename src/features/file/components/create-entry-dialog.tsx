@@ -1,11 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { toast } from "sonner";
 import { fileApi } from "@/features/file/file.api";
 import { useCreateDialogStore } from "@/features/file/store/create-dialog.store";
 import { useFileStore } from "@/features/file/store/file.store";
 import { useNavigationStore } from "@/features/navigation/store/navigation.store";
+import { toasts } from "@/shared/toasts";
 import { Button } from "@/shared/components/ui/button";
 import {
   Dialog,
@@ -47,17 +47,17 @@ export function CreateEntryDialog() {
     try {
       if (createType === "file") {
         await fileApi.createFile(currentPath, trimmed);
-        toast.success(`File "${trimmed}" created`);
+        toasts.fileCreated(trimmed);
       } else {
         await fileApi.createFolder(currentPath, trimmed);
-        toast.success(`Folder "${trimmed}" created`);
+        toasts.folderCreated(trimmed);
       }
       await refreshEntries();
       closeCreateDialog();
       setName("");
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
-      toast.error(message);
+      toasts.createFailed(message);
     }
   };
 

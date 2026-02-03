@@ -15,6 +15,16 @@ export type EntryMetadata = {
   mtime: Date | null;
 };
 
+/** Full metadata for a single entry (Properties dialog). */
+export type EntryProperties = {
+  path: string;
+  name: string;
+  isDirectory: boolean;
+  size: number;
+  mtime: Date | null;
+  atime: Date | null;
+};
+
 /** Hidden files/dirs (name starting with .) are excluded. Folders first, then by name. */
 export const fileApi = {
   getEntries: async (path: string): Promise<DirEntry[]> => {
@@ -25,6 +35,26 @@ export const fileApi = {
         return a.isDirectory ? -1 : 1;
       return a.name.localeCompare(b.name, undefined, { sensitivity: "base" });
     });
+  },
+
+  /**
+   * Fetches full metadata for a single entry (path, name, type, size, mtime, atime).
+   * Used by the Properties dialog.
+   */
+  getEntryProperties: async (
+    parentPath: string,
+    entry: DirEntry,
+  ): Promise<EntryProperties> => {
+    const path = await join(parentPath, entry.name);
+    const info = await stat(path);
+    return {
+      path,
+      name: entry.name,
+      isDirectory: entry.isDirectory,
+      size: info.size,
+      mtime: info.mtime,
+      atime: info.atime ?? null,
+    };
   },
 
   /**

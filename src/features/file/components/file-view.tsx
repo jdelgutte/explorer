@@ -1,13 +1,14 @@
 import { join } from "@tauri-apps/api/path";
 import { DirEntry } from "@tauri-apps/plugin-fs";
 import { openPath } from "@tauri-apps/plugin-opener";
-import { toast } from "sonner";
+import { usePropertiesDialogStore } from "@/features/file/store/properties-dialog.store";
 import { useRenameDialogStore } from "@/features/file/store/rename-dialog.store";
 import { useFileActions } from "@/features/file/useFileActions";
 import { useFileStore } from "../store/file.store";
 import { useNavigationStore } from "@/features/navigation/store/navigation.store";
 import { useViewStore } from "@/features/viewmode/view.store";
 import { useQuickAccessStore } from "@/features/quick-access/store/quick-access.store";
+import { toasts } from "@/shared/toasts";
 import type { EntryContextMenuHandlers } from "./entry-context-menu";
 import { FileGrid } from "./grid";
 import { FileList } from "./list";
@@ -47,12 +48,15 @@ export function FileView() {
   const addToQuickAccess = useQuickAccessStore((s) => s.add);
   const hasPathInQuickAccess = useQuickAccessStore((s) => s.hasPath);
   const openRenameDialog = useRenameDialogStore((s) => s.openRenameDialog);
+  const openPropertiesDialog = usePropertiesDialogStore(
+    (s) => s.openPropertiesDialog,
+  );
   const { copy, cut, paste, deleteEntry } = useFileActions();
 
   const contextMenuHandlers: EntryContextMenuHandlers = {
     onOpen: handleDoubleClick,
     onRename: (entry) => openRenameDialog(entry),
-    onProperties: () => toast.info("Properties – coming soon"),
+    onProperties: (entry) => openPropertiesDialog(entry, currentPath),
     onCopy: (entry) => copy(entry),
     onCut: (entry) => cut(entry),
     onPaste: () => paste(),
@@ -63,11 +67,11 @@ export function FileView() {
             if (!entry.isDirectory) return;
             join(currentPath, entry.name).then((path) => {
               if (hasPathInQuickAccess(path)) {
-                toast.info("Already in Quick access");
+                toasts.alreadyInQuickAccess();
                 return;
               }
               addToQuickAccess(path, entry.name);
-              toast.success(`"${entry.name}" added to Quick access`);
+              toasts.addedToQuickAccess(entry.name);
             });
           }
         : undefined,

@@ -2,6 +2,7 @@ import "./App.css";
 import { CommandPalette } from "@/features/command/components/command-palette";
 import { useFileShortcuts } from "@/features/file/useFileShortcuts";
 import { CreateEntryDialog } from "@/features/file/components/create-entry-dialog";
+import { PropertiesDialog } from "@/features/file/components/properties-dialog";
 import { RenameEntryDialog } from "@/features/file/components/rename-entry-dialog";
 import { FileView } from "@/features/file/components/file-view";
 import { TabBar } from "@/features/tabs/components/tab-bar";
@@ -31,6 +32,7 @@ function App() {
       <SearchDialog />
       <CreateEntryDialog />
       <RenameEntryDialog />
+      <PropertiesDialog />
       <Toaster />
     </div>
   );

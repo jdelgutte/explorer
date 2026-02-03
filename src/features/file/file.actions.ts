@@ -1,6 +1,6 @@
 import { join } from "@tauri-apps/api/path";
 import { DirEntry } from "@tauri-apps/plugin-fs";
-import { toast } from "sonner";
+import { toasts } from "@/shared/toasts";
 import { fileApi } from "@/features/file/file.api";
 import { useFileStore } from "@/features/file/store/file.store";
 import { useNavigationStore } from "@/features/navigation/store/navigation.store";
@@ -30,12 +30,12 @@ export async function doCopy(entry?: DirEntry): Promise<void> {
     ? await getPathFromEntry(currentPath, entry)
     : await getSelectedPath();
   if (!path) {
-    toast.info("Select an item to copy");
+    toasts.selectItemToCopy();
     return;
   }
 
   useClipboardStore.getState().setClipboard([path], "copy");
-  toast.success("Copied to clipboard");
+  toasts.copiedToClipboard();
 }
 
 /** Cut: store paths in clipboard with mode "cut". */
@@ -47,12 +47,12 @@ export async function doCut(entry?: DirEntry): Promise<void> {
     ? await getPathFromEntry(currentPath, entry)
     : await getSelectedPath();
   if (!path) {
-    toast.info("Select an item to cut");
+    toasts.selectItemToCut();
     return;
   }
 
   useClipboardStore.getState().setClipboard([path], "cut");
-  toast.success("Cut to clipboard");
+  toasts.cutToClipboard();
 }
 
 /** Paste: copy or move clipboard contents into current directory and refresh list. */
@@ -62,11 +62,11 @@ export async function doPaste(): Promise<void> {
   const { paths, mode, clearClipboard } = useClipboardStore.getState();
 
   if (!currentPath) {
-    toast.info("Open a folder to paste into");
+    toasts.openFolderToPaste();
     return;
   }
   if (paths.length === 0) {
-    toast.info("Clipboard is empty");
+    toasts.clipboardEmpty();
     return;
   }
 
@@ -83,12 +83,11 @@ export async function doPaste(): Promise<void> {
     }
     const entries = await fileApi.getEntries(currentPath);
     setEntries(entries);
-    toast.success(
-      mode === "copy" ? "Pasted" : `Moved ${paths.length} item(s)`
-    );
+    if (mode === "copy") toasts.pasted();
+    else toasts.movedItems(paths.length);
   } catch (err) {
     console.error("Paste failed:", err);
-    toast.error("Paste failed");
+    toasts.pasteFailed();
   }
 }
 
@@ -100,15 +99,15 @@ export async function doRename(entry: DirEntry, newName: string): Promise<void> 
 
   const trimmed = newName.trim();
   if (!trimmed) {
-    toast.info("Name cannot be empty");
+    toasts.nameCannotBeEmpty();
     return;
   }
   if (trimmed.includes("/") || trimmed.includes("\\")) {
-    toast.error("Name cannot contain path separators");
+    toasts.nameNoPathSeparators();
     return;
   }
   if (trimmed === entry.name) {
-    toast.info("Name unchanged");
+    toasts.nameUnchanged();
     return;
   }
 
@@ -116,10 +115,10 @@ export async function doRename(entry: DirEntry, newName: string): Promise<void> 
     await fileApi.renameEntry(currentPath, entry.name, trimmed);
     const entries = await fileApi.getEntries(currentPath);
     setEntries(entries);
-    toast.success("Renamed");
+    toasts.renamed();
   } catch (err) {
     console.error("Rename failed:", err);
-    toast.error("Rename failed");
+    toasts.renameFailed();
   }
 }
 
@@ -133,7 +132,7 @@ export async function doDelete(entry?: DirEntry): Promise<void> {
     ? await getPathFromEntry(currentPath, entry)
     : await getSelectedPath();
   if (!path) {
-    toast.info("Select an item to delete");
+    toasts.selectItemToDelete();
     return;
   }
 
@@ -142,9 +141,9 @@ export async function doDelete(entry?: DirEntry): Promise<void> {
     await fileApi.movePath(path, trashDir);
     const entries = await fileApi.getEntries(currentPath);
     setEntries(entries);
-    toast.success("Moved to Trash");
+    toasts.movedToTrash();
   } catch (err) {
     console.error("Delete failed:", err);
-    toast.error("Delete failed");
+    toasts.deleteFailed();
   }
 }

@@ -41,4 +41,8 @@ export const toasts = {
   alreadyInQuickAccess: () => toast.info("Already in Quick access"),
   addedToQuickAccess: (name: string) =>
     toast.success(`"${name}" added to Quick access`),
+
+  // Access
+  accessDenied: () =>
+    toast.error("Access denied to this folder or file."),
 };

@@ -1,7 +1,7 @@
 import { join } from "@tauri-apps/api/path";
 import { DirEntry } from "@tauri-apps/plugin-fs";
 import { toasts } from "@/shared/toasts";
-import { fileApi } from "@/features/file/file.api";
+import { fileApi, isAccessDeniedError } from "@/features/file/file.api";
 import { useFileStore } from "@/features/file/store/file.store";
 import { useNavigationStore } from "@/features/navigation/store/navigation.store";
 import { useClipboardStore } from "@/features/file/store/clipboard.store";
@@ -89,7 +89,8 @@ export async function doPaste(): Promise<void> {
     else toasts.movedItems(paths.length);
   } catch (err) {
     console.error("Paste failed:", err);
-    toasts.pasteFailed();
+    if (isAccessDeniedError(err)) toasts.accessDenied();
+    else toasts.pasteFailed();
   }
 }
 
@@ -120,7 +121,8 @@ export async function doRename(entry: DirEntry, newName: string): Promise<void> 
     toasts.renamed();
   } catch (err) {
     console.error("Rename failed:", err);
-    toasts.renameFailed();
+    if (isAccessDeniedError(err)) toasts.accessDenied();
+    else toasts.renameFailed();
   }
 }
 
@@ -148,6 +150,7 @@ export async function doDelete(entry?: DirEntry): Promise<void> {
     toasts.movedToTrash();
   } catch (err) {
     console.error("Delete failed:", err);
-    toasts.deleteFailed();
+    if (isAccessDeniedError(err)) toasts.accessDenied();
+    else toasts.deleteFailed();
   }
 }

@@ -12,6 +12,7 @@ import { toasts } from "@/shared/toasts";
 import type { EntryContextMenuHandlers } from "./entry-context-menu";
 import { FileGrid } from "./grid";
 import { FileList } from "./list";
+import { fileApi, isAccessDeniedError } from "../file.api";
 
 /** Props passed to list/grid by the parent. */
 export type FileViewChildProps = {
@@ -39,12 +40,16 @@ export function FileView() {
   };
 
   const handleDoubleClick = async (entry: DirEntry) => {
+    const path = await join(currentPath, entry.name);
     if (entry.isDirectory) {
-      const nextPath = await join(currentPath, entry.name);
-      setCurrentPath(nextPath);
-      clearSelection();
+      try {
+        await fileApi.getEntries(path);
+        setCurrentPath(path);
+        clearSelection();
+      } catch (err) {
+        if (isAccessDeniedError(err)) toasts.accessDenied();
+      }
     } else {
-      const path = await join(currentPath, entry.name);
       await openPath(path);
     }
   };

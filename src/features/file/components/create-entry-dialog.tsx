@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { fileApi } from "@/features/file/file.api";
+import { fileApi, isAccessDeniedError } from "@/features/file/file.api";
 import { useCreateDialogStore } from "@/features/file/store/create-dialog.store";
 import { useFileStore } from "@/features/file/store/file.store";
 import { useNavigationStore } from "@/features/navigation/store/navigation.store";
@@ -31,8 +31,12 @@ export function CreateEntryDialog() {
 
   const refreshEntries = useCallback(async () => {
     if (!currentPath) return;
-    const entries = await fileApi.getEntries(currentPath);
-    setEntries(entries);
+    try {
+      const entries = await fileApi.getEntries(currentPath);
+      setEntries(entries);
+    } catch (err) {
+      if (isAccessDeniedError(err)) toasts.accessDenied();
+    }
   }, [currentPath, setEntries]);
 
   // Reset name when dialog opens
@@ -56,8 +60,11 @@ export function CreateEntryDialog() {
       closeCreateDialog();
       setName("");
     } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      toasts.createFailed(message);
+      if (isAccessDeniedError(err)) toasts.accessDenied();
+      else {
+        const message = err instanceof Error ? err.message : String(err);
+        toasts.createFailed(message);
+      }
     }
   };
 

@@ -25,6 +25,20 @@ export type EntryProperties = {
   atime: Date | null;
 };
 
+/** Returns true if the error indicates denied access (permissions / scope). */
+export function isAccessDeniedError(err: unknown): boolean {
+  const msg =
+    (err instanceof Error ? err.message : String(err ?? "")).toLowerCase();
+  return (
+    msg.includes("permission denied") ||
+    msg.includes("access denied") ||
+    msg.includes("eacces") ||
+    msg.includes("eperm") ||
+    msg.includes("operation not permitted") ||
+    msg.includes("not allowed")
+  );
+}
+
 /** Hidden files/dirs (name starting with .) are excluded. Folders first, then by name. */
 export const fileApi = {
   getEntries: async (path: string): Promise<DirEntry[]> => {

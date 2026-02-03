@@ -1,8 +1,9 @@
-import { useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { fileApi, isAccessDeniedError } from "@/features/file/file.api";
 import { useFileStore } from "@/features/file/store/file.store";
 import { useNavigationStore } from "@/features/navigation/store/navigation.store";
 import { toasts } from "@/shared/toasts";
+import { UnwatchFn, watch } from "@tauri-apps/plugin-fs";
 
 /**
  * Syncs the file store entries with the current navigation path.
@@ -12,23 +13,48 @@ import { toasts } from "@/shared/toasts";
  */
 export function useSyncEntriesToCurrentPath(): void {
   const currentPath = useNavigationStore((s) => s.currentPath);
+  const unwatchRef = useRef<UnwatchFn | null>(null);
+
+  const refreshEntries = useCallback(async () => {
+    if (!currentPath) return;
+    try {
+      const entries = await fileApi.getEntries(currentPath);
+      useFileStore.getState().setEntries(entries);
+    } catch (err) {
+      if (isAccessDeniedError(err)) toasts.accessDenied();
+    }
+  }, [currentPath]);
 
   useEffect(() => {
     if (!currentPath) return;
     let cancelled = false;
+
     (async () => {
       try {
-        const entries = await fileApi.getEntries(currentPath);
-        if (!cancelled) useFileStore.getState().setEntries(entries);
+        if (!cancelled) await refreshEntries();
       } catch (err) {
-        if (!cancelled) {
-          useFileStore.getState().setEntries([]);
-          if (isAccessDeniedError(err)) toasts.accessDenied();
-        }
+        if (!cancelled && isAccessDeniedError(err)) toasts.accessDenied();
       }
+
+      if (cancelled) return;
+      const unwatch = await watch(
+        currentPath,
+        async () => {
+          if (!cancelled) await refreshEntries();
+        },
+        { delayMs: 1000 }
+      );
+      if (cancelled) {
+        unwatch();
+        return;
+      }
+      unwatchRef.current = unwatch;
     })();
+
     return () => {
       cancelled = true;
+      unwatchRef.current?.();
+      unwatchRef.current = null;
     };
-  }, [currentPath]);
+  }, [currentPath, refreshEntries]);
 }

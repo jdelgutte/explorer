@@ -32,6 +32,8 @@
     "fs:allow-remove",
     "fs:allow-rename",
     "fs:allow-copy-file",
+    "fs:allow-watch",
+    "fs:allow-unwatch",
     {
       "identifier": "fs:scope",
       "allow": [

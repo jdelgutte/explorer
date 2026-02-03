@@ -27,7 +27,7 @@ export const DEFAULT_NAV: TabNavigationState = {
 
 export const DEFAULT_FILE: TabFileState = {
   entries: [],
-  selectedItem: null,
+  selectedItems: [],
 };
 
 function createDefaultTabSlice(): TabSlice {

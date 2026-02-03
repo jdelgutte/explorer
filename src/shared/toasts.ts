@@ -32,6 +32,15 @@ export const toasts = {
   movedToTrash: () => toast.success("Moved to Trash"),
   deleteFailed: () => toast.error("Delete failed"),
 
+  // Empty trash
+  trashEmptied: () => toast.success("Trash emptied"),
+  emptyTrashFailed: (message: string) => toast.error(message),
+
+  // Restore from trash
+  restoredFromTrash: (count: number) =>
+    toast.success(count === 1 ? "Item restored" : `${count} items restored`),
+  restoreFromTrashFailed: (message: string) => toast.error(message),
+
   // Create (file / folder)
   fileCreated: (name: string) => toast.success(`File "${name}" created`),
   folderCreated: (name: string) => toast.success(`Folder "${name}" created`),

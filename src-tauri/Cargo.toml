@@ -28,6 +28,7 @@ walkdir = "2.5"
 base64 = "0.22.1"
 image = "0.25.9"
 pdfium-render = { version = "0.8.37", features = ["sync"] }
+trash = "5.2.5"
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-global-shortcut = "2.3.1"

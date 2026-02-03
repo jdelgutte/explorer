@@ -7,6 +7,8 @@ type SidebarNavButtonProps = {
   onClick: () => void;
   title?: string;
   className?: string;
+  /** Optional suffix (e.g. trash item count or size) shown after the label. */
+  suffix?: React.ReactNode;
 };
 
 /**
@@ -19,6 +21,7 @@ export function SidebarNavButton({
   onClick,
   title,
   className,
+  suffix,
 }: SidebarNavButtonProps) {
   return (
     <button
@@ -37,7 +40,12 @@ export function SidebarNavButton({
       <span className="size-5 shrink-0 [&>svg]:size-5 [&>svg]:text-muted-foreground">
         {icon}
       </span>
-      <span className="truncate">{label}</span>
+      <span className="truncate flex-1 min-w-0">{label}</span>
+      {suffix != null && (
+        <span className="shrink-0 text-muted-foreground text-xs tabular-nums">
+          {suffix}
+        </span>
+      )}
     </button>
   );
 }

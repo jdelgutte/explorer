@@ -1,13 +1,51 @@
 import { useState } from "react";
-import { Search } from "lucide-react";
+import { Search, RotateCcw } from "lucide-react";
 import { ViewModeToggle } from "@/features/viewmode/view-mode-toggle";
 import { NavigationButtons } from "@/features/navigation/components/navigation-buttons";
+import { Button } from "@/shared/components/ui/button";
+import { useNavigationStore } from "@/features/navigation/store/navigation.store";
+import { useFileStore } from "@/features/file/store/file.store";
+import { useTrashInfoStore } from "@/features/file/store/trash-info.store";
+import { fileApi } from "@/features/file/file.api";
+import { toasts } from "@/shared/toasts";
+
 type ToolbarProps = {
   searchPlaceholder?: string;
 };
 
 export function Toolbar({ searchPlaceholder = "Search..." }: ToolbarProps) {
   const [searchValue, setSearchValue] = useState("");
+  const currentPath = useNavigationStore((s) => s.currentPath);
+  const trashPath = useTrashInfoStore((s) => s.trashPath);
+  const restoreAvailable = useTrashInfoStore((s) => s.restoreAvailable);
+  const refetchTrash = useTrashInfoStore((s) => s.refetch);
+  const selectedItems = useFileStore((s) => s.selectedItems);
+  const setEntries = useFileStore((s) => s.setEntries);
+  const clearSelection = useFileStore((s) => s.clearSelection);
+
+  const isInTrash =
+    currentPath && trashPath && currentPath === trashPath;
+  const canRestore =
+    isInTrash &&
+    restoreAvailable &&
+    selectedItems.length > 0;
+
+  const handleRestore = async () => {
+    if (!canRestore || !currentPath) return;
+    const ids = selectedItems.map((e) => e.name);
+    try {
+      await fileApi.restoreTrashItems(ids);
+      clearSelection();
+      await refetchTrash();
+      const entries = await fileApi.getEntries(currentPath);
+      setEntries(entries);
+      toasts.restoredFromTrash(ids.length);
+    } catch (err) {
+      toasts.restoreFromTrashFailed(
+        err instanceof Error ? err.message : String(err)
+      );
+    }
+  };
 
   return (
     <header className="flex h-12 shrink-0 items-center gap-4 border-b border-border/60 bg-background/95 px-4 py-2 backdrop-blur-sm">
@@ -15,6 +53,22 @@ export function Toolbar({ searchPlaceholder = "Search..." }: ToolbarProps) {
       <nav className="flex shrink-0 items-center" aria-label="Navigation">
         <NavigationButtons />
       </nav>
+
+      {/* Restore (when in trash with selection) */}
+      {canRestore && (
+        <>
+          <div className="h-6 w-px shrink-0 bg-border/50" aria-hidden />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleRestore}
+            className="gap-2"
+          >
+            <RotateCcw className="size-4" />
+            Restore
+          </Button>
+        </>
+      )}
 
       {/* Separator */}
       <div className="h-6 w-px shrink-0 bg-border/50" aria-hidden />

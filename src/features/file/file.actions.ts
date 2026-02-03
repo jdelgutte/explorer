@@ -141,10 +141,7 @@ export async function doDelete(entry?: DirEntry): Promise<void> {
   }
 
   try {
-    const trashDir = await fileApi.getTrashDir();
-    for (const path of paths) {
-      await fileApi.movePath(path, trashDir);
-    }
+    await fileApi.moveToTrash(paths);
     const entries = await fileApi.getEntries(currentPath);
     setEntries(entries);
     toasts.movedToTrash();

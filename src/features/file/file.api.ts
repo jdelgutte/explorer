@@ -97,6 +97,24 @@ export const fileApi = {
   /** Returns the path to the system Trash / Recycle Bin directory. */
   getTrashDir: (): Promise<string> => invoke<string>("get_trash_dir"),
 
+  /** Returns item count, total size (bytes), and whether restore is available (Linux/Windows). */
+  getTrashInfo: (): Promise<{
+    item_count: number;
+    total_size_bytes: number;
+    restore_available: boolean;
+  }> => invoke("get_trash_info"),
+
+  /** Permanently deletes all items in the trash. */
+  emptyTrash: (): Promise<void> => invoke("empty_trash"),
+
+  /** Moves the given paths to the system trash (creates .trashinfo on Linux, proper Recycle Bin on Windows). */
+  moveToTrash: (paths: string[]): Promise<void> =>
+    invoke("move_to_trash", { paths }),
+
+  /** Restores the given trash items by their id/name in the trash. Linux/Windows only. */
+  restoreTrashItems: (ids: string[]): Promise<void> =>
+    invoke("restore_trash_items", { ids }),
+
   /** Creates an empty file at parentPath/name. */
   createFile: async (parentPath: string, name: string): Promise<void> => {
     const path = await join(parentPath, name);

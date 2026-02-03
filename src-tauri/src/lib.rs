@@ -16,6 +16,10 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
             trash::get_trash_dir,
+            trash::get_trash_info,
+            trash::empty_trash,
+            trash::restore_trash_items,
+            trash::move_to_trash,
             devices::get_mountable_devices,
             pdf_thumbnail::pdf_thumbnail,
             image_thumbnail::image_thumbnail,

@@ -24,7 +24,6 @@ import { fileApi } from "@/features/file/file.api";
 import { devicesApi } from "@/features/devices/devices.api";
 import type { MountableDevice } from "@/features/devices/devices.api";
 import { useEffect, useState } from "react";
-import { useFileStore } from "@/features/file/store/file.store";
 import { useNavigationStore } from "@/features/navigation/store/navigation.store";
 import { Separator } from "@/shared/components/ui/separator";
 import { QuickAccessList } from "@/features/quick-access/components/quick-access-list";
@@ -174,19 +173,6 @@ export function Sidebar({
       cancelled = true;
     };
   }, [currentPath, selectedItem, setCurrentPath]);
-
-  // Refetch entries whenever currentPath changes (sidebar or list navigation)
-  useEffect(() => {
-    if (!currentPath) return;
-    let cancelled = false;
-    (async () => {
-      const entries = await fileApi.getEntries(currentPath);
-      if (!cancelled) useFileStore.getState().setEntries(entries);
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [currentPath]);
 
   return (
     <aside

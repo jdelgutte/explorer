@@ -1,6 +1,7 @@
 import "./App.css";
 import { CommandPalette } from "@/features/command/components/command-palette";
 import { useFileShortcuts } from "@/features/file/useFileShortcuts";
+import { useSyncEntriesToCurrentPath } from "@/features/file/useSyncEntriesToCurrentPath";
 import { CreateEntryDialog } from "@/features/file/components/create-entry-dialog";
 import { PropertiesDialog } from "@/features/file/components/properties-dialog";
 import { RenameEntryDialog } from "@/features/file/components/rename-entry-dialog";
@@ -15,6 +16,7 @@ import { Toolbar } from "@/shared/components/toolbar";
 function App() {
   useSearchDialogShortcut();
   useFileShortcuts();
+  useSyncEntriesToCurrentPath();
 
   return (
     <div className="flex h-screen flex-col">

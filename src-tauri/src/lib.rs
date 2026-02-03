@@ -3,8 +3,9 @@
 mod devices;
 mod image_thumbnail;
 mod pdf_thumbnail;
-mod trash;
 mod search;
+mod thumbnail_cache;
+mod trash;
 
 use tauri::{Emitter, Manager};
 
@@ -29,6 +30,7 @@ pub fn run() {
         .setup(|app| {
             let pdfium = pdf_thumbnail::init_pdfium_for_app();
             app.manage(pdf_thumbnail::PdfiumState(pdfium));
+            app.manage(thumbnail_cache::ThumbnailCache::default());
             app.manage(search::SearchState::default());
 
             let app_handle = app.app_handle().clone();

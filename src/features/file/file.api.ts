@@ -174,4 +174,12 @@ export const fileApi = {
     const newPath = await join(parentPath, newName);
     await rename(oldPath, newPath);
   },
+
+  /** Image thumbnail as data URL (backend may resize). Cached in backend. */
+  getImageThumbnail: (path: string): Promise<string> =>
+    invoke<string>("image_thumbnail", { path }),
+
+  /** PDF thumbnail as base64 PNG payload (prepend data:image/png;base64,). Cached in backend. */
+  getPdfThumbnail: (path: string): Promise<string> =>
+    invoke<string>("pdf_thumbnail", { path }),
 };

@@ -1,11 +1,13 @@
 import { join } from "@tauri-apps/api/path";
 import { DirEntry } from "@tauri-apps/plugin-fs";
-import { invoke } from "@tauri-apps/api/core";
 import { useEffect, useState } from "react";
+import { fileApi } from "./file.api";
 import { isImageFileName, isPdfFileName } from "./image-preview";
+import { thumbnailCache } from "./thumbnail-cache";
 
 /**
  * Loads the thumbnail URL for a single file entry (image or PDF).
+ * Uses an in-memory cache so revisiting the same file does not re-call the backend.
  * Returns undefined for directories or non-previewable files.
  */
 export function useThumbnail(
@@ -32,13 +34,26 @@ export function useThumbnail(
       try {
         const path = await join(currentPath, entry.name);
         if (cancelled) return;
+
+        const cached = thumbnailCache.get(path);
+        if (cached != null) {
+          if (!cancelled) setUrl(cached);
+          return;
+        }
+
         if (isImage) {
-          const dataUrl = await invoke<string>("image_thumbnail", { path });
-          if (!cancelled && dataUrl) setUrl(dataUrl);
+          const dataUrl = await fileApi.getImageThumbnail(path);
+          if (!cancelled && dataUrl) {
+            thumbnailCache.set(path, dataUrl);
+            setUrl(dataUrl);
+          }
         } else {
-          const base64 = await invoke<string>("pdf_thumbnail", { path });
-          if (!cancelled && base64)
-            setUrl(`data:image/png;base64,${base64}`);
+          const base64 = await fileApi.getPdfThumbnail(path);
+          if (!cancelled && base64) {
+            const dataUrl = `data:image/png;base64,${base64}`;
+            thumbnailCache.set(path, dataUrl);
+            setUrl(dataUrl);
+          }
         }
       } catch (e) {
         if (!cancelled) {

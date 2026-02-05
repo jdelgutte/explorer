@@ -4,7 +4,7 @@ import { useMountableDevices } from "@/features/devices/useMountableDevices";
 import type { MountableDevice } from "@/features/devices/devices.api";
 import { useQuickAccessStore } from "@/features/quick-access/store/quick-access.store";
 import type { QuickAccessItem } from "@/features/quick-access/store/quick-access.store";
-import type { RecentItem } from "@/features/recent/store/recent.store";
+import { useRecentStore } from "@/features/recent/store/recent.store";
 import { SIDEBAR_ITEMS, type SidebarItem } from "./constants";
 
 export type SidebarSelection = {
@@ -13,13 +13,11 @@ export type SidebarSelection = {
   selectedItem: SidebarItem;
   selectedDeviceMountPoint: string | null;
   selectedQuickAccessId: string | null;
-  selectedRecentId: string | null;
   recentsSelected: boolean;
   devices: MountableDevice[];
   handleSelectRecents: () => void;
   handleSelectPlace: (item: SidebarItem) => void;
   handleSelectQuickAccess: (item: QuickAccessItem) => void;
-  handleSelectRecent: (item: RecentItem) => void;
   handleSelectDevice: (device: MountableDevice) => void;
 };
 
@@ -29,46 +27,37 @@ export function useSidebarSelection(): SidebarSelection {
   const [selectedItem, setSelectedItem] = useState<SidebarItem>(SIDEBAR_ITEMS[0]);
   const [selectedDeviceMountPoint, setSelectedDeviceMountPoint] = useState<string | null>(null);
   const [selectedQuickAccessId, setSelectedQuickAccessId] = useState<string | null>(null);
-  const [selectedRecentId, setSelectedRecentId] = useState<string | null>(null);
-  const [recentsSelected, setRecentsSelected] = useState(false);
   const devices = useMountableDevices();
   const quickAccessItems = useQuickAccessStore((s) => s.items);
+  const recentsSelected = useRecentStore((s) => s.recentsViewActive);
+  const setRecentsViewActive = useRecentStore((s) => s.setRecentsViewActive);
 
   const handleSelectRecents = () => {
-    setRecentsSelected(true);
+    setRecentsViewActive(true);
     setSelectedDeviceMountPoint(null);
     setSelectedQuickAccessId(null);
-    setSelectedRecentId(null);
   };
 
   const handleSelectPlace = async (item: SidebarItem) => {
-    setRecentsSelected(false);
+    setRecentsViewActive(false);
     setSelectedItem(item);
     setSelectedDeviceMountPoint(null);
     setSelectedQuickAccessId(null);
-    setSelectedRecentId(null);
     setCurrentPath(await item.getPath());
   };
 
   const handleSelectQuickAccess = (item: QuickAccessItem) => {
-    setRecentsSelected(false);
+    setRecentsViewActive(false);
     setSelectedItem(SIDEBAR_ITEMS[0]);
     setSelectedDeviceMountPoint(null);
     setSelectedQuickAccessId(item.id);
-    setSelectedRecentId(null);
     setCurrentPath(item.path);
   };
 
-  const handleSelectRecent = (item: RecentItem) => {
-    setSelectedQuickAccessId(null);
-    setSelectedRecentId(item.id);
-  };
-
   const handleSelectDevice = (device: MountableDevice) => {
-    setRecentsSelected(false);
+    setRecentsViewActive(false);
     setSelectedDeviceMountPoint(device.mount_point);
     setSelectedQuickAccessId(null);
-    setSelectedRecentId(null);
     setCurrentPath(device.mount_point);
   };
 
@@ -79,12 +68,11 @@ export function useSidebarSelection(): SidebarSelection {
     if (quickItem) {
       setSelectedQuickAccessId(quickItem.id);
       setSelectedDeviceMountPoint(null);
-      setSelectedRecentId(null);
-      setRecentsSelected(false);
+      setRecentsViewActive(false);
     } else {
       setSelectedQuickAccessId(null);
     }
-  }, [currentPath, quickAccessItems]);
+  }, [currentPath, quickAccessItems, setRecentsViewActive]);
 
   // Sync place selection when navigating (highlight the place that contains currentPath)
   useEffect(() => {
@@ -107,15 +95,15 @@ export function useSidebarSelection(): SidebarSelection {
       }
       if (!cancelled && bestMatch) {
         setSelectedItem(bestMatch);
-        setRecentsSelected(false);
+        setRecentsViewActive(false);
       }
     })();
     return () => {
       cancelled = true;
     };
-  }, [currentPath]);
+  }, [currentPath, setRecentsViewActive]);
 
-  // Initial load: set currentPath from sidebar selection when empty (only when not on Récents)
+  // Initial load: set currentPath from sidebar selection when empty (not when Recents is selected)
   useEffect(() => {
     if (currentPath || recentsSelected) return;
     let cancelled = false;
@@ -134,13 +122,11 @@ export function useSidebarSelection(): SidebarSelection {
     selectedItem,
     selectedDeviceMountPoint,
     selectedQuickAccessId,
-    selectedRecentId,
     recentsSelected,
     devices,
     handleSelectRecents,
     handleSelectPlace,
     handleSelectQuickAccess,
-    handleSelectRecent,
     handleSelectDevice,
   };
 }

@@ -18,6 +18,8 @@ function nameFromPath(path: string, isDirectory: boolean): string {
 
 interface State {
   items: RecentItem[];
+  /** When true, main content shows recent files list (sidebar "Récents" selected). */
+  recentsViewActive: boolean;
 }
 
 interface Actions {
@@ -25,12 +27,16 @@ interface Actions {
   add: (path: string, name?: string, isDirectory?: boolean) => void;
   remove: (id: string) => void;
   clear: () => void;
+  setRecentsViewActive: (active: boolean) => void;
 }
 
 export const useRecentStore = create<State & Actions>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       items: [],
+      recentsViewActive: false,
+
+      setRecentsViewActive: (active) => set({ recentsViewActive: active }),
 
       add: (path, name, isDirectory = false) => {
         const normalized = path.replace(/\/+$/, "") || path;
@@ -59,6 +65,6 @@ export const useRecentStore = create<State & Actions>()(
 
       clear: () => set({ items: [] }),
     }),
-    { name: "recent-store" }
+    { name: "recent-store", partialize: (s) => ({ items: s.items }) }
   )
 );

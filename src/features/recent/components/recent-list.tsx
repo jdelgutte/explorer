@@ -16,11 +16,14 @@ import {
 type RecentListProps = {
   selectedRecentId: string | null;
   onSelectRecent: (item: RecentItem) => void;
+  /** "sidebar" for sidebar styles, "content" for main content area */
+  variant?: "sidebar" | "content";
 };
 
 export function RecentList({
   selectedRecentId,
   onSelectRecent,
+  variant = "sidebar",
 }: RecentListProps) {
   const items = useRecentStore((s) => s.items);
   const remove = useRecentStore((s) => s.remove);
@@ -51,9 +54,13 @@ export function RecentList({
                 onClick={() => handleSelect(item)}
                 className={cn(
                   "flex h-9 w-full items-center gap-3 rounded-md px-3 text-left text-sm font-medium transition-colors",
-                  isSelected
-                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                    : "text-sidebar-foreground hover:bg-sidebar-accent/70 hover:text-sidebar-accent-foreground"
+                  variant === "content"
+                    ? isSelected
+                      ? "bg-muted text-foreground"
+                      : "text-foreground hover:bg-muted"
+                    : isSelected
+                      ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                      : "text-sidebar-foreground hover:bg-sidebar-accent/70 hover:text-sidebar-accent-foreground"
                 )}
                 aria-current={isSelected ? "true" : undefined}
                 title={item.path}

@@ -1,4 +1,5 @@
 import { openPath } from "@tauri-apps/plugin-opener";
+import { useTranslation } from "react-i18next";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -25,6 +26,7 @@ export function RecentList({
   onSelectRecent,
   variant = "sidebar",
 }: RecentListProps) {
+  const { t } = useTranslation();
   const items = useRecentStore((s) => s.items);
   const remove = useRecentStore((s) => s.remove);
   const clear = useRecentStore((s) => s.clear);
@@ -41,7 +43,7 @@ export function RecentList({
     <>
       {fileItems.length === 0 ? (
         <p className="px-3 py-4 text-sm text-muted-foreground">
-          Aucun fichier ouvert récemment.
+          {t("recent.empty")}
         </p>
       ) : (
         fileItems.map((item) => {
@@ -75,7 +77,7 @@ export function RecentList({
                 className="text-muted-foreground"
               >
                 <X className="size-4" />
-                Remove from list
+                {t("recent.removeFromList")}
               </ContextMenuItem>
               <ContextMenuSeparator />
               <ContextMenuItem
@@ -83,7 +85,7 @@ export function RecentList({
                 className="text-muted-foreground"
               >
                 <Trash2 className="size-4" />
-                Clear recent
+                {t("recent.clearRecent")}
               </ContextMenuItem>
             </ContextMenuContent>
           </ContextMenu>

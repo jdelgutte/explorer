@@ -1,4 +1,5 @@
 import React, { memo, useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { DirEntry } from "@tauri-apps/plugin-fs";
 import { Virtuoso, type VirtuosoProps } from "react-virtuoso";
 import { cn } from "@/lib/utils";
@@ -21,11 +22,11 @@ import {
 import { formatDate, formatFileSize } from "../utils/format";
 import { useThumbnail } from "../useThumbnail";
 
-const COLUMN_LABELS: Record<ListColumnId, string> = {
-  name: "Name",
-  type: "Type",
-  size: "Size",
-  dateModified: "Date modified",
+const COLUMN_KEYS: Record<ListColumnId, string> = {
+  name: "file.list.name",
+  type: "file.list.type",
+  size: "file.list.size",
+  dateModified: "file.list.dateModified",
 };
 
 type FileListRowProps = {
@@ -47,6 +48,7 @@ export function FileList({
   onDoubleClick,
   contextMenuHandlers,
 }: FileViewChildProps) {
+  const { t } = useTranslation();
   const columns = useListColumnsStore((s) => s.columns);
   const toggleColumn = useListColumnsStore((s) => s.toggleColumn);
   const [metadata, setMetadata] = useState<Record<string, EntryMetadata>>({});
@@ -105,38 +107,38 @@ export function FileList({
               <div className="w-8 shrink-0" aria-hidden />
               {columns.name ? (
                 <span className="min-w-0 flex-1 text-[11px] font-medium uppercase tracking-widest text-muted-foreground/80">
-                  {COLUMN_LABELS.name}
+                  {t(COLUMN_KEYS.name)}
                 </span>
               ) : (
                 <span className="min-w-0 flex-1" aria-hidden />
               )}
               {columns.type && (
                 <span className="w-20 shrink-0 text-right text-[11px] font-medium uppercase tracking-widest text-muted-foreground/80">
-                  {COLUMN_LABELS.type}
+                  {t(COLUMN_KEYS.type)}
                 </span>
               )}
               {columns.size && (
                 <span className="w-24 shrink-0 text-right text-[11px] font-medium uppercase tracking-widest text-muted-foreground/80">
-                  {COLUMN_LABELS.size}
+                  {t(COLUMN_KEYS.size)}
                 </span>
               )}
               {columns.dateModified && (
                 <span className="w-36 shrink-0 text-right text-[11px] font-medium uppercase tracking-widest text-muted-foreground/80">
-                  {COLUMN_LABELS.dateModified}
+                  {t(COLUMN_KEYS.dateModified)}
                 </span>
               )}
             </div>
           </div>
         </ContextMenuTrigger>
         <ContextMenuContent className="w-52">
-          <ContextMenuLabel>Visible columns</ContextMenuLabel>
-          {(Object.keys(COLUMN_LABELS) as ListColumnId[]).map((id) => (
+          <ContextMenuLabel>{t("file.list.visibleColumns")}</ContextMenuLabel>
+          {(Object.keys(COLUMN_KEYS) as ListColumnId[]).map((id) => (
             <ContextMenuCheckboxItem
               key={id}
               checked={columns[id]}
               onCheckedChange={() => toggleColumn(id)}
             >
-              {COLUMN_LABELS[id]}
+              {t(COLUMN_KEYS[id])}
             </ContextMenuCheckboxItem>
           ))}
         </ContextMenuContent>
@@ -165,6 +167,7 @@ function ListRow({
   onDoubleClick,
   contextMenuHandlers,
 }: FileListRowProps) {
+  const { t } = useTranslation();
   const imageSrc = useThumbnail(entry, currentPath);
 
   return (
@@ -219,7 +222,7 @@ function ListRow({
           )}
           {columns.type && (
             <span className="w-20 shrink-0 text-right text-xs text-muted-foreground">
-              {entry.isDirectory ? "Folder" : "File"}
+              {entry.isDirectory ? t("file.list.folder") : t("file.list.file")}
             </span>
           )}
           {columns.size && (

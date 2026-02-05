@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { fileApi, isAccessDeniedError } from "@/features/file/file.api";
 import { useCreateDialogStore } from "@/features/file/store/create-dialog.store";
 import { useFileStore } from "@/features/file/store/file.store";
@@ -24,6 +25,7 @@ const inputClassName = cn(
 );
 
 export function CreateEntryDialog() {
+  const { t } = useTranslation();
   const { open, createType, closeCreateDialog } = useCreateDialogStore();
   const currentPath = useNavigationStore((state) => state.currentPath);
   const setEntries = useFileStore((state) => state.setEntries);
@@ -78,9 +80,9 @@ export function CreateEntryDialog() {
   // Only render when dialog is open and type is set (set together via openCreateDialog)
   if (!open || !createType) return null;
 
-  const title = createType === "file" ? "New file" : "New folder";
+  const title = createType === "file" ? t("file.newFile") : t("file.newFolder");
   const placeholder =
-    createType === "file" ? "filename.txt" : "Folder name";
+    createType === "file" ? t("file.filenamePlaceholder") : t("file.folderNamePlaceholder");
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -104,10 +106,10 @@ export function CreateEntryDialog() {
         />
         <DialogFooter>
           <Button variant="outline" onClick={() => handleOpenChange(false)}>
-            Cancel
+            {t("file.cancel")}
           </Button>
           <Button onClick={handleConfirm} disabled={!name.trim()}>
-            Create
+            {t("file.create")}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -37,13 +37,14 @@ export type SidebarItem = {
   getPath: () => Promise<string>;
 };
 
+/** Translation keys for labels. Resolve with t(key) where rendered. */
 export const SIDEBAR_ITEMS: SidebarItem[] = [
-  { id: "home", label: "Home", icon: Home, getPath: homeDir },
-  { id: "desktop", label: "Desktop", icon: Monitor, getPath: desktopDir },
-  { id: "documents", label: "Documents", icon: FileText, getPath: documentDir },
-  { id: "downloads", label: "Downloads", icon: Download, getPath: downloadDir },
-  { id: "pictures", label: "Pictures", icon: Image, getPath: pictureDir },
-  { id: "music", label: "Music", icon: Music, getPath: audioDir },
-  { id: "videos", label: "Videos", icon: Video, getPath: videoDir },
-  { id: "trash", label: "Trash", icon: Trash2, getPath: () => fileApi.getTrashDir() },
+  { id: "home", label: "sidebar.home", icon: Home, getPath: homeDir },
+  { id: "desktop", label: "sidebar.desktop", icon: Monitor, getPath: desktopDir },
+  { id: "documents", label: "sidebar.documents", icon: FileText, getPath: documentDir },
+  { id: "downloads", label: "sidebar.downloads", icon: Download, getPath: downloadDir },
+  { id: "pictures", label: "sidebar.pictures", icon: Image, getPath: pictureDir },
+  { id: "music", label: "sidebar.music", icon: Music, getPath: audioDir },
+  { id: "videos", label: "sidebar.videos", icon: Video, getPath: videoDir },
+  { id: "trash", label: "sidebar.trash", icon: Trash2, getPath: () => fileApi.getTrashDir() },
 ];

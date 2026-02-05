@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from "react-i18next";
 import type { CommandGroupName } from "@/features/command/useCommandPalette";
 import { useCommandPalette } from "@/features/command/useCommandPalette";
 import {
@@ -12,16 +13,17 @@ import {
 } from "@/shared/components/ui/command";
 
 export function CommandPalette() {
+  const { t } = useTranslation();
   const { open, onOpenChange, commands, groups } = useCommandPalette();
 
   const renderGroup = (group: CommandGroupName) => (
-    <CommandGroup key={group} heading={group}>
+    <CommandGroup key={group} heading={t(group)}>
       {commands
         .filter((command) => command.group === group)
         .map(({ label, icon: Icon, onSelect }) => (
           <CommandItem key={label} onSelect={onSelect}>
             <Icon className="size-4" />
-            {label}
+            {t(label)}
           </CommandItem>
         ))}
     </CommandGroup>
@@ -29,14 +31,14 @@ export function CommandPalette() {
 
   return (
     <CommandDialog
-      title="Command Palette"
-      description="Create a file or folder in the current directory."
+      title={t("command.title")}
+      description={t("command.description")}
       open={open}
       onOpenChange={onOpenChange}
     >
-      <CommandInput placeholder="Search commands..." />
+      <CommandInput placeholder={t("command.searchPlaceholder")} />
       <CommandList>
-        <CommandEmpty>No results found.</CommandEmpty>
+        <CommandEmpty>{t("command.noResults")}</CommandEmpty>
         {groups.map(renderGroup)}
       </CommandList>
     </CommandDialog>

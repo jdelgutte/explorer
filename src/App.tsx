@@ -1,4 +1,5 @@
 import "./App.css";
+import { useTranslation } from "react-i18next";
 import { CommandPalette } from "@/features/command/components/command-palette";
 import { useFileShortcuts } from "@/features/file/useFileShortcuts";
 import { useSyncEntriesToCurrentPath } from "@/features/file/useSyncEntriesToCurrentPath";
@@ -17,6 +18,7 @@ import { Toaster } from "@/shared/components/ui/sonner";
 import { Toolbar } from "@/shared/components/toolbar";
 
 function App() {
+  const { t } = useTranslation();
   useSearchDialogShortcut();
   useFileShortcuts();
   useSyncEntriesToCurrentPath();
@@ -31,7 +33,7 @@ function App() {
           <TabBar />
           <div className="flex-1 min-h-0 overflow-auto">
             {recentsViewActive ? (
-              <nav className="p-3" aria-label="Recent files">
+              <nav className="p-3" aria-label={t("recent.title")}>
                 <RecentList
                   selectedRecentId={null}
                   onSelectRecent={() => {}}

@@ -1,57 +1,53 @@
 import { toast } from "sonner";
+import i18n from "@/i18n/i18n";
 
-/**
- * Centralized toast messages. Use these instead of calling toast.* directly
- * so all copy is in one place and easy to change or i18n later.
- */
+/** Centralized toast messages. All copy is translated via i18n. */
 export const toasts = {
-  // Copy / Cut
-  selectItemToCopy: () => toast.info("Select an item to copy"),
-  copiedToClipboard: () => toast.success("Copied to clipboard"),
-  selectItemToCut: () => toast.info("Select an item to cut"),
-  cutToClipboard: () => toast.success("Cut to clipboard"),
+  selectItemToCopy: () => toast.info(i18n.t("toast.selectItemToCopy")),
+  copiedToClipboard: () => toast.success(i18n.t("toast.copiedToClipboard")),
+  selectItemToCut: () => toast.info(i18n.t("toast.selectItemToCut")),
+  cutToClipboard: () => toast.success(i18n.t("toast.cutToClipboard")),
 
-  // Paste
-  openFolderToPaste: () => toast.info("Open a folder to paste into"),
-  clipboardEmpty: () => toast.info("Clipboard is empty"),
-  pasted: () => toast.success("Pasted"),
+  openFolderToPaste: () => toast.info(i18n.t("toast.openFolderToPaste")),
+  clipboardEmpty: () => toast.info(i18n.t("toast.clipboardEmpty")),
+  pasted: () => toast.success(i18n.t("toast.pasted")),
   movedItems: (count: number) =>
-    toast.success(`Moved ${count} item(s)`),
-  pasteFailed: () => toast.error("Paste failed"),
+    toast.success(i18n.t("toast.movedItems", { count })),
+  pasteFailed: () => toast.error(i18n.t("toast.pasteFailed")),
 
-  // Rename
-  nameCannotBeEmpty: () => toast.info("Name cannot be empty"),
-  nameNoPathSeparators: () =>
-    toast.error("Name cannot contain path separators"),
-  nameUnchanged: () => toast.info("Name unchanged"),
-  renamed: () => toast.success("Renamed"),
-  renameFailed: () => toast.error("Rename failed"),
+  nameCannotBeEmpty: () => toast.info(i18n.t("toast.nameCannotBeEmpty")),
+  nameNoPathSeparators: () => toast.error(i18n.t("toast.nameNoPathSeparators")),
+  nameUnchanged: () => toast.info(i18n.t("toast.nameUnchanged")),
+  renamed: () => toast.success(i18n.t("toast.renamed")),
+  renameFailed: () => toast.error(i18n.t("toast.renameFailed")),
 
-  // Delete
-  selectItemToDelete: () => toast.info("Select an item to delete"),
-  movedToTrash: () => toast.success("Moved to Trash"),
-  deleteFailed: () => toast.error("Delete failed"),
+  selectItemToDelete: () => toast.info(i18n.t("toast.selectItemToDelete")),
+  movedToTrash: () => toast.success(i18n.t("toast.movedToTrash")),
+  deleteFailed: () => toast.error(i18n.t("toast.deleteFailed")),
 
-  // Empty trash
-  trashEmptied: () => toast.success("Trash emptied"),
+  trashEmptied: () => toast.success(i18n.t("toast.trashEmptied")),
   emptyTrashFailed: (message: string) => toast.error(message),
 
-  // Restore from trash
   restoredFromTrash: (count: number) =>
-    toast.success(count === 1 ? "Item restored" : `${count} items restored`),
+    toast.success(
+      count === 1
+        ? i18n.t("toast.restoredOne")
+        : i18n.t("toast.restoredMany", { count })
+    ),
   restoreFromTrashFailed: (message: string) => toast.error(message),
 
-  // Create (file / folder)
-  fileCreated: (name: string) => toast.success(`File "${name}" created`),
-  folderCreated: (name: string) => toast.success(`Folder "${name}" created`),
+  fileCreated: (name: string) =>
+    toast.success(i18n.t("toast.fileCreated", { name })),
+  folderCreated: (name: string) =>
+    toast.success(i18n.t("toast.folderCreated", { name })),
   createFailed: (message: string) => toast.error(message),
 
-  // Quick access
-  alreadyInQuickAccess: () => toast.info("Already in Quick access"),
+  alreadyInQuickAccess: () =>
+    toast.info(i18n.t("toast.alreadyInQuickAccess")),
   addedToQuickAccess: (name: string) =>
-    toast.success(`"${name}" added to Quick access`),
+    toast.success(i18n.t("toast.addedToQuickAccess", { name })),
 
-  // Access
-  accessDenied: () =>
-    toast.error("Access denied to this folder or file."),
+  accessDenied: () => toast.error(i18n.t("toast.accessDenied")),
+
+  error: (message: string) => toast.error(message),
 };

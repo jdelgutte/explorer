@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -21,6 +22,7 @@ export function QuickAccessList({
   selectedQuickAccessId,
   onSelectQuickAccess,
 }: QuickAccessListProps) {
+  const { t } = useTranslation();
   const items = useQuickAccessStore((s) => s.items);
   const remove = useQuickAccessStore((s) => s.remove);
   const setCurrentPath = useNavigationStore((s) => s.setCurrentPath);
@@ -64,7 +66,7 @@ export function QuickAccessList({
                 className="text-muted-foreground"
               >
                 <PinOff className="size-4" />
-                Remove from Quick access
+                {t("sidebar.removeFromQuickAccess")}
               </ContextMenuItem>
             </ContextMenuContent>
           </ContextMenu>

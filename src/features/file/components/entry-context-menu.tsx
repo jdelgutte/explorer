@@ -1,4 +1,5 @@
 import { DirEntry } from "@tauri-apps/plugin-fs";
+import { useTranslation } from "react-i18next";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -16,6 +17,7 @@ import {
   Trash2,
   FolderOpen,
   Pin,
+  Terminal,
 } from "lucide-react";
 
 export type EntryContextMenuHandlers = {
@@ -28,6 +30,8 @@ export type EntryContextMenuHandlers = {
   onDelete?: (entry: DirEntry) => void;
   /** Add folder to Quick access (only shown for directories). */
   onAddToQuickAccess?: (entry: DirEntry) => void;
+  /** Open in system terminal (only shown for directories). */
+  onOpenInTerminal?: (entry: DirEntry) => void;
 };
 
 type EntryContextMenuProps = {
@@ -51,6 +55,8 @@ export function EntryContextMenu({
   const handlePaste = () => handlers.onPaste?.(entry);
   const handleDelete = () => handlers.onDelete?.(entry);
   const handleAddToQuickAccess = () => handlers.onAddToQuickAccess?.(entry);
+  const handleOpenInTerminal = () => handlers.onOpenInTerminal?.(entry);
+  const { t } = useTranslation();
 
   return (
     <ContextMenu>
@@ -58,44 +64,50 @@ export function EntryContextMenu({
       <ContextMenuContent className="w-56">
         <ContextMenuItem onSelect={handleOpen}>
           <FolderOpen className="size-4" />
-          Open
+          {t("contextMenu.open")}
         </ContextMenuItem>
         {entry.isDirectory && handlers.onAddToQuickAccess && (
           <ContextMenuItem onSelect={handleAddToQuickAccess}>
             <Pin className="size-4" />
-            Add to Quick access
+            {t("sidebar.addToQuickAccess")}
+          </ContextMenuItem>
+        )}
+        {entry.isDirectory && handlers.onOpenInTerminal && (
+          <ContextMenuItem onSelect={handleOpenInTerminal}>
+            <Terminal className="size-4" />
+            {t("contextMenu.openInTerminal")}
           </ContextMenuItem>
         )}
         <ContextMenuItem onSelect={handleRename}>
           <Pencil className="size-4" />
-          Rename
-          <ContextMenuShortcut>F2</ContextMenuShortcut>
+          {t("contextMenu.rename")}
+          <ContextMenuShortcut>{t("contextMenu.shortcut.f2")}</ContextMenuShortcut>
         </ContextMenuItem>
         <ContextMenuItem onSelect={handleProperties}>
           <Info className="size-4" />
-          Properties
+          {t("contextMenu.properties")}
         </ContextMenuItem>
         <ContextMenuSeparator />
         <ContextMenuItem onSelect={handleCopy}>
           <Copy className="size-4" />
-          Copy
-          <ContextMenuShortcut>Ctrl+C</ContextMenuShortcut>
+          {t("contextMenu.copy")}
+          <ContextMenuShortcut>{t("contextMenu.shortcut.ctrlC")}</ContextMenuShortcut>
         </ContextMenuItem>
         <ContextMenuItem onSelect={handleCut}>
           <Scissors className="size-4" />
-          Cut
-          <ContextMenuShortcut>Ctrl+X</ContextMenuShortcut>
+          {t("contextMenu.cut")}
+          <ContextMenuShortcut>{t("contextMenu.shortcut.ctrlX")}</ContextMenuShortcut>
         </ContextMenuItem>
         <ContextMenuItem onSelect={handlePaste}>
           <ClipboardPaste className="size-4" />
-          Paste
-          <ContextMenuShortcut>Ctrl+V</ContextMenuShortcut>
+          {t("contextMenu.paste")}
+          <ContextMenuShortcut>{t("contextMenu.shortcut.ctrlV")}</ContextMenuShortcut>
         </ContextMenuItem>
         <ContextMenuSeparator />
         <ContextMenuItem onSelect={handleDelete} variant="destructive">
           <Trash2 className="size-4" />
-          Delete
-          <ContextMenuShortcut>Ctrl+Suppr</ContextMenuShortcut>
+          {t("contextMenu.delete")}
+          <ContextMenuShortcut>{t("contextMenu.shortcut.ctrlDel")}</ContextMenuShortcut>
         </ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>

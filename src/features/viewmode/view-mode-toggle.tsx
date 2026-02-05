@@ -1,9 +1,11 @@
 import { List, LayoutGrid } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/shared/components/ui/button";
 import { useViewStore } from "@/features/viewmode/view.store";
 import { ButtonGroup } from "@/shared/components/ui/button-group";
 
 export function ViewModeToggle() {
+  const { t } = useTranslation();
   const viewMode = useViewStore((state) => state.viewMode);
   const setViewMode = useViewStore((state) => state.setViewMode);
 
@@ -15,7 +17,7 @@ export function ViewModeToggle() {
           size="icon"
           className="size-8"
           onClick={() => setViewMode("list")}
-          aria-label="List view"
+          aria-label={t("view.list")}
           aria-pressed={viewMode === "list"}
         >
           <List className="size-4" />
@@ -26,7 +28,7 @@ export function ViewModeToggle() {
           size="icon"
           className="size-8"
           onClick={() => setViewMode("grid")}
-          aria-label="Grid view"
+          aria-label={t("view.grid")}
           aria-pressed={viewMode === "grid"}
         >
           <LayoutGrid className="size-4" />

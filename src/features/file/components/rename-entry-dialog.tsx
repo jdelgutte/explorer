@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { doRename } from "@/features/file/file.actions";
 import { useRenameDialogStore } from "@/features/file/store/rename-dialog.store";
 import { Button } from "@/shared/components/ui/button";
@@ -21,6 +22,7 @@ const inputClassName = cn(
 );
 
 export function RenameEntryDialog() {
+  const { t } = useTranslation();
   const { open, entry, closeRenameDialog } = useRenameDialogStore();
   const [name, setName] = useState("");
 
@@ -57,7 +59,7 @@ export function RenameEntryDialog() {
         onPointerDownOutside={(e) => e.preventDefault()}
       >
         <DialogHeader>
-          <DialogTitle>Rename {entry.isDirectory ? "folder" : "file"}</DialogTitle>
+          <DialogTitle>{entry.isDirectory ? t("file.renameFolder") : t("file.renameFile")}</DialogTitle>
         </DialogHeader>
         <input
           type="text"
@@ -70,14 +72,14 @@ export function RenameEntryDialog() {
           placeholder={entry.name}
           className={inputClassName}
           autoFocus
-          aria-label="New name"
+          aria-label={t("file.newName")}
         />
         <DialogFooter>
           <Button variant="outline" onClick={() => handleOpenChange(false)}>
-            Cancel
+            {t("file.cancel")}
           </Button>
           <Button onClick={handleConfirm} disabled={!isValid}>
-            Rename
+            {t("file.rename")}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Search, RotateCcw } from "lucide-react";
 import { ViewModeToggle } from "@/features/viewmode/view-mode-toggle";
 import { NavigationButtons } from "@/features/navigation/components/navigation-buttons";
@@ -8,12 +9,10 @@ import { useFileStore } from "@/features/file/store/file.store";
 import { useTrashInfoStore } from "@/features/file/store/trash-info.store";
 import { fileApi } from "@/features/file/file.api";
 import { toasts } from "@/shared/toasts";
+import { LanguageSwitcher } from "@/i18n/language-switcher";
 
-type ToolbarProps = {
-  searchPlaceholder?: string;
-};
-
-export function Toolbar({ searchPlaceholder = "Search..." }: ToolbarProps) {
+export function Toolbar() {
+  const { t } = useTranslation();
   const [searchValue, setSearchValue] = useState("");
   const currentPath = useNavigationStore((s) => s.currentPath);
   const trashPath = useTrashInfoStore((s) => s.trashPath);
@@ -50,7 +49,7 @@ export function Toolbar({ searchPlaceholder = "Search..." }: ToolbarProps) {
   return (
     <header className="flex h-12 shrink-0 items-center gap-4 border-b border-border/60 bg-background/95 px-4 py-2 backdrop-blur-sm">
       {/* Navigation */}
-      <nav className="flex shrink-0 items-center" aria-label="Navigation">
+      <nav className="flex shrink-0 items-center" aria-label={t("nav.ariaLabel")}>
         <NavigationButtons />
       </nav>
 
@@ -65,7 +64,7 @@ export function Toolbar({ searchPlaceholder = "Search..." }: ToolbarProps) {
             className="gap-2"
           >
             <RotateCcw className="size-4" />
-            Restore
+            {t("toolbar.restore")}
           </Button>
         </>
       )}
@@ -81,16 +80,17 @@ export function Toolbar({ searchPlaceholder = "Search..." }: ToolbarProps) {
             type="search"
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
-            placeholder={searchPlaceholder}
+            placeholder={t("toolbar.searchPlaceholder")}
             className="h-8 w-full rounded-lg border border-transparent bg-muted/40 pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground/80 transition-colors focus:outline-none focus:ring-2 focus:ring-ring/30 focus:border-input hover:bg-muted/50"
-            aria-label="Search"
+            aria-label={t("toolbar.search")}
           />
         </div>
       </form>
 
       {/* View mode */}
-      <div className="flex shrink-0 items-center">
+      <div className="flex shrink-0 items-center gap-2">
         <ViewModeToggle />
+        <LanguageSwitcher />
       </div>
     </header>
   );

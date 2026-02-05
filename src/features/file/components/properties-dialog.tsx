@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { fileApi, type EntryProperties } from "@/features/file/file.api";
 import { usePropertiesDialogStore } from "@/features/file/store/properties-dialog.store";
 import { formatDate, formatFileSize } from "@/features/file/utils/format";
@@ -29,6 +30,7 @@ function PropertyRow({
 }
 
 export function PropertiesDialog() {
+  const { t } = useTranslation();
   const { open, entry, currentPath, closePropertiesDialog } =
     usePropertiesDialogStore();
   const [properties, setProperties] = useState<EntryProperties | null>(null);
@@ -58,8 +60,8 @@ export function PropertiesDialog() {
   if (!open) return null;
 
   const title = entry
-    ? `Properties: ${entry.name}`
-    : "Properties";
+    ? t("properties.titleWithName", { name: entry.name })
+    : t("properties.title");
 
   return (
     <Dialog open={open} onOpenChange={(next) => !next && closePropertiesDialog()}>
@@ -69,21 +71,21 @@ export function PropertiesDialog() {
         </DialogHeader>
 
         {loading && (
-          <p className="py-4 text-sm text-muted-foreground">Loading…</p>
+          <p className="py-4 text-sm text-muted-foreground">{t("properties.loading")}</p>
         )}
         {error && (
           <p className="py-4 text-sm text-destructive">{error}</p>
         )}
         {!loading && !error && properties && (
           <div className="space-y-0 border-t border-border pt-2">
-            <PropertyRow label="Name" value={properties.name} />
+            <PropertyRow label={t("file.list.name")} value={properties.name} />
             <PropertyRow
-              label="Type"
-              value={properties.isDirectory ? "Folder" : "File"}
+              label={t("file.list.type")}
+              value={properties.isDirectory ? t("file.list.folder") : t("file.list.file")}
             />
-            <PropertyRow label="Location" value={properties.path} />
+            <PropertyRow label={t("properties.location")} value={properties.path} />
             <PropertyRow
-              label="Size"
+              label={t("file.list.size")}
               value={
                 properties.isDirectory
                   ? "—"
@@ -91,12 +93,12 @@ export function PropertiesDialog() {
               }
             />
             <PropertyRow
-              label="Date modified"
+              label={t("file.list.dateModified")}
               value={formatDate(properties.mtime)}
             />
             {properties.atime != null && (
               <PropertyRow
-                label="Date accessed"
+                label={t("properties.dateAccessed")}
                 value={formatDate(properties.atime)}
               />
             )}
@@ -104,7 +106,7 @@ export function PropertiesDialog() {
         )}
 
         <DialogFooter>
-          <Button onClick={closePropertiesDialog}>Close</Button>
+          <Button onClick={closePropertiesDialog}>{t("properties.close")}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

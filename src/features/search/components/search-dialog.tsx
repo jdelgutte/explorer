@@ -3,6 +3,7 @@
 import { useDebounce } from "ahooks";
 import { FileIcon, FolderIcon, Loader2, Search } from "lucide-react";
 import { useCallback, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { useThrottleFn } from "ahooks";
 import { openPath } from "@tauri-apps/plugin-opener";
 import { useNavigationStore } from "@/features/navigation/store/navigation.store";
@@ -23,6 +24,7 @@ const MIN_QUERY_LENGTH = 3;
 const RESULTS_THROTTLE_MS = 150;
 
 export function SearchDialog() {
+  const { t } = useTranslation();
   const currentPath = useNavigationStore((s) => s.currentPath);
   const setCurrentPath = useNavigationStore((s) => s.setCurrentPath);
   const {
@@ -131,23 +133,23 @@ export function SearchDialog() {
         <DialogHeader className="shrink-0 border-b px-4 py-3">
           <DialogTitle className="flex items-center gap-2 text-base">
             <Search className="size-4" />
-            Global search
+            {t("search.title")}
           </DialogTitle>
           <DialogDescription>
-            Search files and folders by name. Results stream in as they are found.
+            {t("search.description")}
           </DialogDescription>
         </DialogHeader>
 
         <div className="flex shrink-0 flex-col gap-2 px-4 py-2">
           <label htmlFor="search-query" className="text-xs font-medium text-muted-foreground">
-            Query
+            {t("search.queryLabel")}
           </label>
           <input
             id="search-query"
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder={`Type at least ${MIN_QUERY_LENGTH} characters to search...`}
+            placeholder={t("search.placeholder", { count: MIN_QUERY_LENGTH })}
             className="h-9 w-full rounded-md border border-input bg-muted/50 px-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             autoFocus
           />
@@ -156,31 +158,31 @@ export function SearchDialog() {
         <div className="min-h-0 flex-1 overflow-hidden border-t">
           {query.trim() === "" && (
             <div className="py-8 text-center text-sm text-muted-foreground">
-              Enter at least {MIN_QUERY_LENGTH} characters to search by file or folder name. Results will appear as they are found.
+              {t("search.hintEmpty", { count: MIN_QUERY_LENGTH })}
             </div>
           )}
           {query.trim() !== "" && query.trim().length < MIN_QUERY_LENGTH && (
             <div className="py-8 text-center text-sm text-muted-foreground">
-              Type at least {MIN_QUERY_LENGTH} characters to search.
+              {t("search.hintMinChars", { count: MIN_QUERY_LENGTH })}
             </div>
           )}
           {query.trim().length >= MIN_QUERY_LENGTH && isLoading && queryResults.length === 0 && (
             <div className="flex items-center justify-center gap-2 py-8 text-muted-foreground">
               <Loader2 className="size-4 animate-spin" />
-              <span className="text-sm">Searching...</span>
+              <span className="text-sm">{t("search.searching")}</span>
             </div>
           )}
           {query.trim().length >= MIN_QUERY_LENGTH && !isLoading && debouncedQuery.length >= MIN_QUERY_LENGTH && queryResults.length === 0 && (
             <div className="py-8 text-center text-sm text-muted-foreground">
-              No results found.
+              {t("search.noResults")}
             </div>
           )}
           {(isLoading || queryResults.length > 0) && queryResults.length > 0 && (
             <>
               <div className="sticky top-0 z-10 flex items-center justify-between border-b bg-muted/40 px-4 py-1.5 text-xs text-muted-foreground">
                 <span>
-                  {queryResults.length} result{queryResults.length !== 1 ? "s" : ""}
-                  {isLoading && " (updating…)"}
+                  {t("search.resultCount", { count: queryResults.length })}
+                  {isLoading && ` ${t("search.updating")}`}
                 </span>
               </div>
               <div className="max-h-[40vh] overflow-y-auto py-1">

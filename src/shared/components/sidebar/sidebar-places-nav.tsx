@@ -1,5 +1,6 @@
 import { Clock } from "lucide-react";
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { SidebarNavButton } from "@/shared/components/sidebar-nav-button";
 import { SIDEBAR_ITEMS } from "./constants";
 import type { SidebarSelection } from "./useSidebarSelection";
@@ -33,6 +34,7 @@ export function SidebarPlacesNav({
   handleSelectRecents,
   handleSelectPlace,
 }: SidebarPlacesNavProps) {
+  const { t } = useTranslation();
   const refetch = useTrashInfoStore((s) => s.refetch);
 
   useEffect(() => {
@@ -43,7 +45,7 @@ export function SidebarPlacesNav({
     <nav className="flex flex-col gap-0.5 p-2" aria-label="Places">
       <SidebarNavButton
         icon={<Clock />}
-        label="Récents"
+        label={t("sidebar.recents")}
         isSelected={recentsSelected && selectedDeviceMountPoint === null}
         onClick={handleSelectRecents}
       />
@@ -51,7 +53,7 @@ export function SidebarPlacesNav({
         <SidebarNavButton
           key={item.id}
           icon={<item.icon />}
-          label={item.label}
+          label={t(item.label)}
           isSelected={
             !recentsSelected &&
             selectedDeviceMountPoint === null &&

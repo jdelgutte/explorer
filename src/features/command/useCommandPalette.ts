@@ -5,10 +5,12 @@ import { useTrashInfoStore } from "@/features/file/store/trash-info.store";
 import { useSearchStore } from "@/features/search/store/search.store";
 import { useCommandPaletteShortcut } from "@/features/command/useCommandPaletteShortcut";
 
-export type CommandGroupName = "Search" | "Create" | "Trash";
+/** Translation keys for command group headings. */
+export type CommandGroupName = "command.group.search" | "command.group.create" | "command.group.trash";
 
 export type CommandConfig = {
   group: CommandGroupName;
+  /** Translation key for the command label. */
   label: string;
   icon: LucideIcon;
   onSelect: () => void;
@@ -37,32 +39,32 @@ export function useCommandPalette() {
 
   const commands: CommandConfig[] = [
     {
-      group: "Search",
-      label: "Global search",
+      group: "command.group.search",
+      label: "command.globalSearch",
       icon: Search,
       onSelect: handleSelectGlobalSearch,
     },
     {
-      group: "Create",
-      label: "Create file",
+      group: "command.group.create",
+      label: "command.createFile",
       icon: FilePlus,
       onSelect: () => handleSelectCreate("file"),
     },
     {
-      group: "Create",
-      label: "Create folder",
+      group: "command.group.create",
+      label: "command.createFolder",
       icon: FolderPlus,
       onSelect: () => handleSelectCreate("folder"),
     },
     {
-      group: "Trash",
-      label: "Empty trash",
+      group: "command.group.trash",
+      label: "command.emptyTrash",
       icon: Trash2,
       onSelect: handleSelectEmptyTrash,
     },
   ];
 
-  const groups: CommandGroupName[] = ["Search", "Create", "Trash"];
+  const groups: CommandGroupName[] = ["command.group.search", "command.group.create", "command.group.trash"];
 
   return {
     open,

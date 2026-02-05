@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Plus, X } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { useTabsStore } from "@/features/tabs/store/tabs.store";
@@ -6,6 +7,7 @@ import { Button } from "@/shared/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export function TabBar() {
+  const { t } = useTranslation();
   const tabs = useTabsStore((s) => s.tabs);
   const activeTabId = useTabsStore((s) => s.activeTabId);
   const selectedTabIds = useTabsStore((s) => s.selectedTabIds);
@@ -32,10 +34,10 @@ export function TabBar() {
 
   const handleCommitRename = useCallback(() => {
     if (editingTabId) {
-      renameTab(editingTabId, editingLabel.trim() || "Tab");
+      renameTab(editingTabId, editingLabel.trim() || t("tabs.defaultLabel"));
       setEditingTabId(null);
     }
-  }, [editingTabId, editingLabel, renameTab]);
+  }, [editingTabId, editingLabel, renameTab, t]);
 
   const handleTabClick = useCallback(
     (tabId: string, e: React.MouseEvent) => {
@@ -81,7 +83,7 @@ export function TabBar() {
       className="flex min-w-0 shrink-0 items-stretch gap-0"
       onKeyDown={handleKeyDown}
       role="tablist"
-      aria-label="Tabs"
+      aria-label={t("tabs.ariaLabel")}
     >
       <Tabs
         value={activeTabId ?? ""}
@@ -119,7 +121,7 @@ export function TabBar() {
                       e.stopPropagation();
                     }}
                     onClick={(e) => e.stopPropagation()}
-                    aria-label="Rename tab"
+                    aria-label={t("tabs.renameTab")}
                   />
                 ) : (
                   <span
@@ -128,14 +130,14 @@ export function TabBar() {
                       e.stopPropagation();
                       setEditingTabId(tab.id);
                     }}
-                    title="Double-click to rename"
+                    title={t("tabs.doubleClickToRename")}
                   >
                     {tab.label}
                   </span>
                 )}
                 <button
                   type="button"
-                  aria-label={`Close ${tab.label}`}
+                  aria-label={t("tabs.closeTab", { label: tab.label })}
                   className="ml-0.5 flex size-5 shrink-0 items-center justify-center rounded-sm opacity-60 hover:opacity-100 hover:bg-muted-foreground/15 focus:opacity-100 focus:outline-none focus:ring-1 focus:ring-ring/50"
                   onClick={(e) => handleCloseClick(e, tab.id)}
                 >
@@ -146,7 +148,7 @@ export function TabBar() {
           })}
           <Button
             type="button"
-            aria-label="New tab"
+            aria-label={t("tabs.newTab")}
             onClick={addTab}
             className="size-8 shrink-0 rounded-b-none border-x border-t border-border bg-muted text-muted-foreground transition-colors hover:bg-muted-foreground/10 hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring/30 focus:ring-inset"
           >

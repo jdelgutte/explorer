@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Dialog,
   DialogContent,
@@ -12,9 +14,9 @@ import { Button } from "@/shared/components/ui/button";
 import { fileApi } from "../file.api";
 import { toasts } from "@/shared/toasts";
 import { useTrashInfoStore } from "../store/trash-info.store";
-import { useState } from "react";
 
 export function EmptyTrashDialog() {
+  const { t } = useTranslation();
   const emptyDialogOpen = useTrashInfoStore((s) => s.emptyDialogOpen);
   const closeEmptyDialog = useTrashInfoStore((s) => s.closeEmptyDialog);
   const refetch = useTrashInfoStore((s) => s.refetch);
@@ -40,9 +42,9 @@ export function EmptyTrashDialog() {
     <Dialog open={emptyDialogOpen} onOpenChange={(open) => !open && closeEmptyDialog()}>
       <DialogContent showCloseButton={true}>
         <DialogHeader>
-          <DialogTitle>Empty trash</DialogTitle>
+          <DialogTitle>{t("emptyTrash.title")}</DialogTitle>
           <DialogDescription>
-            Permanently delete all items in the trash? This cannot be undone.
+            {t("emptyTrash.description")}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter showCloseButton={false}>
@@ -51,10 +53,10 @@ export function EmptyTrashDialog() {
             onClick={() => closeEmptyDialog()}
             disabled={isDeleting}
           >
-            Cancel
+            {t("emptyTrash.cancel")}
           </Button>
           <Button variant="destructive" onClick={handleConfirm} disabled={isDeleting}>
-            {isDeleting ? "Deleting…" : "Empty trash"}
+            {isDeleting ? t("emptyTrash.deleting") : t("emptyTrash.confirm")}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -137,5 +137,19 @@
   "toast.accessDenied": "Accès refusé à ce dossier ou fichier.",
 
   "breadcrumb.more": "Plus",
-  "dialog.close": "Fermer"
+  "dialog.close": "Fermer",
+
+  "sidebar.options": "Options",
+  "options.title": "Options",
+  "options.language": "Langue",
+  "options.defaultFileManager": "Gestionnaire de fichiers par défaut",
+  "options.setAsDefaultDescription": "Utiliser cette application pour ouvrir les dossiers depuis le système (par ex. l’icône Fichiers). Pris en charge uniquement sous Linux.",
+  "options.setAsDefault": "Définir par défaut",
+  "options.setAsDefaultSuccess": "Cette application est maintenant le gestionnaire de fichiers par défaut.",
+  "options.setAsDefaultError": "Impossible de définir par défaut : {{message}}",
+  "options.resetDefault": "Réinitialiser",
+  "options.resetDefaultSuccess": "Le gestionnaire de fichiers par défaut a été réinitialisé.",
+  "options.resetDefaultError": "Impossible de réinitialiser : {{message}}",
+  "options.languageEn": "Anglais",
+  "options.languageFr": "Français"
 }

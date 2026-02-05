@@ -9,7 +9,6 @@ import { useFileStore } from "@/features/file/store/file.store";
 import { useTrashInfoStore } from "@/features/file/store/trash-info.store";
 import { fileApi } from "@/features/file/file.api";
 import { toasts } from "@/shared/toasts";
-import { LanguageSwitcher } from "@/i18n/language-switcher";
 
 export function Toolbar() {
   const { t } = useTranslation();
@@ -90,7 +89,6 @@ export function Toolbar() {
       {/* View mode */}
       <div className="flex shrink-0 items-center gap-2">
         <ViewModeToggle />
-        <LanguageSwitcher />
       </div>
     </header>
   );

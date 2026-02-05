@@ -1,6 +1,7 @@
 //! Open the system default terminal at a given directory.
 
-use std::path::Path;
+use std::env;
+use std::path::{Path, PathBuf};
 use std::process::Command;
 
 /// Opens the system terminal with the given path as working directory.
@@ -79,4 +80,104 @@ fn open_windows(path: &Path) -> Result<(), String> {
         .spawn()
         .map_err(|e| e.to_string())?;
     Ok(())
+}
+
+/// Sets this app as the default file manager (handler for opening folders).
+/// - Linux: writes a .desktop file to ~/.local/share/applications (so it exists
+///   when not installed via .deb) then runs xdg-mime default.
+/// - Windows/macOS: returns an error (not implemented).
+#[tauri::command]
+pub fn set_default_file_manager() -> Result<(), String> {
+    #[cfg(target_os = "linux")]
+    {
+        ensure_desktop_file_in_user_apps()?;
+        let desktop_file = "com.jdelgutte.explorer.desktop";
+        let status = Command::new("xdg-mime")
+            .args(["default", desktop_file, "inode/directory"])
+            .status()
+            .map_err(|e| e.to_string())?;
+        if status.success() {
+            Ok(())
+        } else {
+            Err(format!(
+                "xdg-mime exited with code {:?}",
+                status.code().unwrap_or(-1)
+            ))
+        }
+    }
+
+    #[cfg(not(target_os = "linux"))]
+    {
+        let _ = ();
+        Err("Set as default file manager is only supported on Linux.".to_string())
+    }
+}
+
+#[cfg(target_os = "linux")]
+fn ensure_desktop_file_in_user_apps() -> Result<(), String> {
+    let exe = env::current_exe().map_err(|e| format!("current exe: {}", e))?;
+    let applications_dir = user_applications_dir()?;
+    std::fs::create_dir_all(&applications_dir)
+        .map_err(|e| format!("create applications dir: {}", e))?;
+    let desktop_path = applications_dir.join("com.jdelgutte.explorer.desktop");
+    // Escape Exec path: desktop spec says to use double quotes and escape \ and "
+    let exe_display = exe.display().to_string();
+    let exe_escaped = exe_display.replace('\\', "\\\\").replace('"', "\\\"");
+    let content = format!(
+        "[Desktop Entry]\n\
+         Type=Application\n\
+         Name=Explorer\n\
+         Comment=File manager\n\
+         Exec=\"{}\" %u\n\
+         MimeType=inode/directory\n\
+         Categories=System;FileTools;FileManager;\n",
+        exe_escaped
+    );
+    std::fs::write(&desktop_path, content).map_err(|e| format!("write desktop file: {}", e))?;
+    Ok(())
+}
+
+#[cfg(target_os = "linux")]
+fn user_applications_dir() -> Result<PathBuf, String> {
+    let base = env::var_os("XDG_DATA_HOME")
+        .map(PathBuf::from)
+        .or_else(|| {
+            env::var_os("HOME").map(|h| PathBuf::from(h).join(".local").join("share"))
+        })
+        .ok_or("XDG_DATA_HOME and HOME are not set")?;
+    Ok(base.join("applications"))
+}
+
+/// Resets the default file manager to a common system file manager (e.g. Nautilus, Nemo, Dolphin).
+/// Tries known .desktop ids in order; the first one that succeeds wins.
+#[tauri::command]
+pub fn reset_default_file_manager() -> Result<(), String> {
+    #[cfg(target_os = "linux")]
+    {
+        let candidates = [
+            "nautilus.desktop",
+            "org.gnome.Nautilus.desktop",
+            "nemo.desktop",
+            "dolphin.desktop",
+            "thunar.desktop",
+            "pcmanfm.desktop",
+        ];
+        for desktop_file in &candidates {
+            let status = Command::new("xdg-mime")
+                .args(["default", desktop_file, "inode/directory"])
+                .status();
+            if let Ok(s) = status {
+                if s.success() {
+                    return Ok(());
+                }
+            }
+        }
+        Err("Could not reset: no known file manager found (tried nautilus, nemo, dolphin, thunar, pcmanfm).".to_string())
+    }
+
+    #[cfg(not(target_os = "linux"))]
+    {
+        let _ = ();
+        Err("Reset default file manager is only supported on Linux.".to_string())
+    }
 }

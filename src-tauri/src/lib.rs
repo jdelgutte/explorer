@@ -28,6 +28,8 @@ pub fn run() {
             search::start_search,
             search::cancel_search,
             shell::open_in_terminal,
+            shell::set_default_file_manager,
+            shell::reset_default_file_manager,
         ])
         .setup(|app| {
             let pdfium = pdf_thumbnail::init_pdfium_for_app();

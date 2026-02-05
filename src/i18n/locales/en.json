@@ -137,5 +137,19 @@
   "toast.accessDenied": "Access denied to this folder or file.",
 
   "breadcrumb.more": "More",
-  "dialog.close": "Close"
+  "dialog.close": "Close",
+
+  "sidebar.options": "Options",
+  "options.title": "Options",
+  "options.language": "Language",
+  "options.defaultFileManager": "Default file manager",
+  "options.setAsDefaultDescription": "Use this app when opening folders from the system (e.g. from the file manager icon). Only supported on Linux.",
+  "options.setAsDefault": "Set as default",
+  "options.setAsDefaultSuccess": "This app is now the default file manager.",
+  "options.setAsDefaultError": "Could not set as default: {{message}}",
+  "options.resetDefault": "Reset",
+  "options.resetDefaultSuccess": "Default file manager has been reset.",
+  "options.resetDefaultError": "Could not reset: {{message}}",
+  "options.languageEn": "English",
+  "options.languageFr": "French"
 }

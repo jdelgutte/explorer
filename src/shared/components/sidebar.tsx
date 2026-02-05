@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import { useSidebarSelection } from "./sidebar/useSidebarSelection";
 import { SidebarPlacesNav } from "./sidebar/sidebar-places-nav";
 import { SidebarContent } from "./sidebar/sidebar-content";
+import { SidebarOptionsNav } from "./sidebar/sidebar-options-nav";
 
 export type { SidebarItem, SidebarLocation } from "./sidebar/constants";
 export { SIDEBAR_ITEMS } from "./sidebar/constants";
@@ -37,6 +38,10 @@ export function Sidebar({ className }: SidebarProps) {
           handleSelectDevice={selection.handleSelectDevice}
         />
       </div>
+      <SidebarOptionsNav
+        optionsSelected={selection.optionsSelected}
+        handleSelectOptions={selection.handleSelectOptions}
+      />
     </aside>
   );
 }

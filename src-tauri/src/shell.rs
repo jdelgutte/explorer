@@ -4,6 +4,15 @@ use std::env;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
+use tauri::State;
+
+/// Returns the folder path passed on the command line when the app was launched (e.g. as default file manager).
+/// Consumed once; subsequent calls return null.
+#[tauri::command]
+pub fn get_initial_folder(state: State<crate::InitialFolderState>) -> Option<String> {
+    state.0.lock().ok().and_then(|mut opt| opt.take())
+}
+
 /// Opens the system terminal with the given path as working directory.
 /// - Linux: tries gnome-terminal, konsole, xfce4-terminal, then xterm.
 /// - macOS: opens Terminal.app at the path.

@@ -16,3 +16,11 @@ export async function setAsDefaultFileManager(): Promise<void> {
 export async function resetDefaultFileManager(): Promise<void> {
   await invoke("reset_default_file_manager");
 }
+
+/**
+ * Returns the folder path passed on the command line when the app was launched (e.g. as default file manager).
+ * Consumed once; subsequent calls return null.
+ */
+export async function getInitialFolder(): Promise<string | null> {
+  return invoke<string | null>("get_initial_folder");
+}

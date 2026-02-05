@@ -8,7 +8,12 @@ mod shell;
 mod thumbnail_cache;
 mod trash;
 
+use std::sync::Mutex;
 use tauri::{path::BaseDirectory, Emitter, Manager};
+
+/// Holds the initial folder path passed on the command line (e.g. when opened as default file manager).
+/// Consumed once by the frontend via get_initial_folder.
+pub struct InitialFolderState(pub Mutex<Option<String>>);
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -30,8 +35,12 @@ pub fn run() {
             shell::open_in_terminal,
             shell::set_default_file_manager,
             shell::reset_default_file_manager,
+            shell::get_initial_folder,
         ])
         .setup(|app| {
+            let initial_folder = parse_initial_folder_from_args();
+            app.manage(InitialFolderState(Mutex::new(initial_folder)));
+
             let pdfium = pdf_thumbnail::init_pdfium_for_app();
             app.manage(pdf_thumbnail::PdfiumState(pdfium));
 
@@ -70,4 +79,31 @@ pub fn run() {
         })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+/// Parses the first valid directory path from process arguments (e.g. when launched as default file manager).
+/// Accepts a single path or a file:// URL; returns canonical path if it exists and is a directory.
+fn parse_initial_folder_from_args() -> Option<String> {
+    let args: Vec<String> = std::env::args().skip(1).collect();
+    for arg in args {
+        let path_str = arg.trim();
+        if path_str.is_empty() {
+            continue;
+        }
+        // Strip file:// prefix (e.g. file:///home/user/folder)
+        let path_str = path_str
+            .strip_prefix("file://")
+            .unwrap_or(path_str)
+            .trim();
+        if path_str.is_empty() {
+            continue;
+        }
+        let path = std::path::Path::new(path_str);
+        if let Ok(canon) = path.canonicalize() {
+            if canon.is_dir() {
+                return Some(canon.to_string_lossy().into_owned());
+            }
+        }
+    }
+    None
 }

@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { CommandPalette } from "@/features/command/components/command-palette";
 import { useFileShortcuts } from "@/features/file/useFileShortcuts";
 import { useSyncEntriesToCurrentPath } from "@/features/file/useSyncEntriesToCurrentPath";
+import { useInitialFolder } from "@/features/navigation/useInitialFolder";
 import { CreateEntryDialog } from "@/features/file/components/create-entry-dialog";
 import { EmptyTrashDialog } from "@/features/file/components/empty-trash-dialog";
 import { PropertiesDialog } from "@/features/file/components/properties-dialog";
@@ -24,6 +25,7 @@ function App() {
   useSearchDialogShortcut();
   useFileShortcuts();
   useSyncEntriesToCurrentPath();
+  useInitialFolder();
   const recentsViewActive = useRecentStore((s) => s.recentsViewActive);
   const optionsViewActive = useOptionsStore((s) => s.optionsViewActive);
 

@@ -1,10 +1,7 @@
 "use client";
 
-import { FilePlus, FolderPlus, Search, Trash2 } from "lucide-react";
-import { useCreateDialogStore } from "@/features/file/store/create-dialog.store";
-import { useTrashInfoStore } from "@/features/file/store/trash-info.store";
-import { useSearchStore } from "@/features/search/store/search.store";
-import { useCommandPaletteShortcut } from "@/features/command/useCommandPaletteShortcut";
+import type { CommandGroupName } from "@/features/command/useCommandPalette";
+import { useCommandPalette } from "@/features/command/useCommandPalette";
 import {
   CommandDialog,
   CommandEmpty,
@@ -15,25 +12,20 @@ import {
 } from "@/shared/components/ui/command";
 
 export function CommandPalette() {
-  const { open, onOpenChange } = useCommandPaletteShortcut();
-  const openCreateDialog = useCreateDialogStore((state) => state.openCreateDialog);
-  const openEmptyDialog = useTrashInfoStore((state) => state.openEmptyDialog);
-  const setSearchDialogOpen = useSearchStore((state) => state.setSearchDialogOpen);
+  const { open, onOpenChange, commands, groups } = useCommandPalette();
 
-  const handleSelectCreate = (type: "file" | "folder") => {
-    onOpenChange(false);
-    openCreateDialog(type);
-  };
-
-  const handleSelectGlobalSearch = () => {
-    onOpenChange(false);
-    setSearchDialogOpen(true);
-  };
-
-  const handleSelectEmptyTrash = () => {
-    onOpenChange(false);
-    openEmptyDialog();
-  };
+  const renderGroup = (group: CommandGroupName) => (
+    <CommandGroup key={group} heading={group}>
+      {commands
+        .filter((command) => command.group === group)
+        .map(({ label, icon: Icon, onSelect }) => (
+          <CommandItem key={label} onSelect={onSelect}>
+            <Icon className="size-4" />
+            {label}
+          </CommandItem>
+        ))}
+    </CommandGroup>
+  );
 
   return (
     <CommandDialog
@@ -45,28 +37,7 @@ export function CommandPalette() {
       <CommandInput placeholder="Search commands..." />
       <CommandList>
         <CommandEmpty>No results found.</CommandEmpty>
-        <CommandGroup heading="Search">
-          <CommandItem onSelect={handleSelectGlobalSearch}>
-            <Search className="size-4" />
-            Global search
-          </CommandItem>
-        </CommandGroup>
-        <CommandGroup heading="Create">
-          <CommandItem onSelect={() => handleSelectCreate("file")}>
-            <FilePlus className="size-4" />
-            Create file
-          </CommandItem>
-          <CommandItem onSelect={() => handleSelectCreate("folder")}>
-            <FolderPlus className="size-4" />
-            Create folder
-          </CommandItem>
-        </CommandGroup>
-        <CommandGroup heading="Trash">
-          <CommandItem onSelect={handleSelectEmptyTrash}>
-            <Trash2 className="size-4" />
-            Empty trash
-          </CommandItem>
-        </CommandGroup>
+        {groups.map(renderGroup)}
       </CommandList>
     </CommandDialog>
   );

@@ -47,7 +47,8 @@ pub fn pdf_thumbnail(
     let mtime = std::fs::metadata(&path).ok().and_then(|m| m.modified().ok());
     let key = cache_key(&path, mtime);
 
-    if let Some(cached) = cache.get(&key) {
+    // First try memory, then on-disk cache (and repopulate memory if found).
+    if let Some(cached) = cache.get_or_load(&key) {
         return Ok(cached);
     }
 
@@ -79,6 +80,7 @@ pub fn pdf_thumbnail(
         .map_err(|e| format!("Encode PNG: {}", e))?;
 
     let b64 = BASE64.encode(&buf);
-    cache.insert(key, b64.clone());
+    // Store in memory and persist to disk (if configured).
+    cache.insert_and_persist(key, b64.clone());
     Ok(b64)
 }

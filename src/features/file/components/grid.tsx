@@ -1,6 +1,6 @@
+import React, { forwardRef, memo, useCallback } from "react";
 import { DirEntry } from "@tauri-apps/plugin-fs";
-import { useVirtualizer } from "@tanstack/react-virtual";
-import { useLayoutEffect, useRef, useState } from "react";
+import { VirtuosoGrid, type VirtuosoGridProps } from "react-virtuoso";
 import { cn } from "@/lib/utils";
 import { EmptyFile } from "./empty-file";
 import { EntryContextMenu } from "./entry-context-menu";
@@ -8,10 +8,38 @@ import { EntryIcon } from "./entry-icon";
 import type { FileViewChildProps } from "./file-view";
 import { useThumbnail } from "../useThumbnail";
 
-const MIN_CELL_WIDTH = 100;
-const GAP_PX = 4;
-const ROW_HEIGHT_ESTIMATE = 110;
-const PADDING_X = 12;
+type FileGridItemProps = {
+  entry: DirEntry;
+  currentPath: string | null;
+  isSelected: boolean;
+  onClick: (e: React.MouseEvent) => void;
+  onDoubleClick: () => void;
+  contextMenuHandlers: FileViewChildProps["contextMenuHandlers"];
+};
+
+// Custom wrappers for VirtuosoGrid so we keep a responsive grid-like layout.
+const fileGridVirtuosoComponents: VirtuosoGridProps<DirEntry, unknown>["components"] =
+  {
+    List: forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+      ({ className, ...props }, ref) => (
+        <div
+          ref={ref}
+          {...props}
+          className={cn(
+            "flex flex-wrap content-start items-start gap-1",
+            className
+          )}
+        />
+      )
+    ),
+    Item: ({ className, ...props }) => (
+      <div
+        {...props}
+        className={cn("p-1 flex-none", className)}
+        style={{ width: "120px" }}
+      />
+    ),
+  };
 
 export function FileGrid({
   entries,
@@ -21,81 +49,37 @@ export function FileGrid({
   onDoubleClick,
   contextMenuHandlers,
 }: FileViewChildProps) {
-  const parentRef = useRef<HTMLDivElement>(null);
-  const [columnCount, setColumnCount] = useState(1);
-
-  useLayoutEffect(() => {
-    const el = parentRef.current;
-    if (!el) return;
-    const update = () => {
-      const w = el.clientWidth - PADDING_X * 2;
-      const cols = Math.max(1, Math.floor((w + GAP_PX) / (MIN_CELL_WIDTH + GAP_PX)));
-      setColumnCount(cols);
-    };
-    update();
-    const ro = new ResizeObserver(update);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
-
-  const rowCount = Math.ceil(entries.length / columnCount);
-  const virtualizer = useVirtualizer({
-    count: rowCount,
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => ROW_HEIGHT_ESTIMATE,
-    overscan: 2,
-  });
-
-  const virtualRows = virtualizer.getVirtualItems();
-  const totalHeight = virtualizer.getTotalSize();
-
   if (entries.length === 0) {
     return <EmptyFile />;
   }
 
+  const itemContent = useCallback(
+    (index: number) => {
+      const entry = entries[index];
+      return (
+        <MemoFileGridItem
+          entry={entry}
+          currentPath={currentPath}
+          isSelected={isEntrySelected(entry)}
+          onClick={(e) => onSelect(entry, e.ctrlKey || e.metaKey)}
+          onDoubleClick={() => onDoubleClick(entry)}
+          contextMenuHandlers={contextMenuHandlers}
+        />
+      );
+    },
+    [entries, currentPath, isEntrySelected, onSelect, onDoubleClick, contextMenuHandlers]
+  );
+
   return (
     <div className="flex flex-1 flex-col overflow-hidden bg-background h-full w-full">
-      <div ref={parentRef} className="flex-1 overflow-auto p-3">
-        <div
-          style={{ height: `${totalHeight}px`, width: "100%", position: "relative" }}
-        >
-          {virtualRows.map((virtualRow) => {
-            const start = virtualRow.index * columnCount;
-            const rowEntries = entries.slice(start, start + columnCount);
-            return (
-              <div
-                key={virtualRow.key}
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  width: "100%",
-                  height: `${virtualRow.size}px`,
-                  transform: `translateY(${virtualRow.start}px)`,
-                }}
-              >
-                <div
-                  className="grid auto-rows-auto gap-1 items-start h-full"
-                  style={{
-                    gridTemplateColumns: `repeat(${columnCount}, minmax(100px, 1fr))`,
-                  }}
-                >
-                  {rowEntries.map((entry) => (
-                    <FileGridItem
-                      key={entry.name}
-                      entry={entry}
-                      currentPath={currentPath}
-                      isSelected={isEntrySelected(entry)}
-                      onClick={(e) => onSelect(entry, e.ctrlKey || e.metaKey)}
-                      onDoubleClick={() => onDoubleClick(entry)}
-                      contextMenuHandlers={contextMenuHandlers}
-                    />
-                  ))}
-                </div>
-              </div>
-            );
-          })}
-        </div>
+      <div className="flex-1 p-3">
+        <VirtuosoGrid
+          style={{ height: "100%" }}
+          totalCount={entries.length}
+          data={entries}
+          components={fileGridVirtuosoComponents}
+          itemContent={itemContent}
+        />
       </div>
     </div>
   );
@@ -108,14 +92,7 @@ function FileGridItem({
   onClick,
   onDoubleClick,
   contextMenuHandlers,
-}: {
-  entry: DirEntry;
-  currentPath: string | null;
-  isSelected: boolean;
-  onClick: (e: React.MouseEvent) => void;
-  onDoubleClick: () => void;
-  contextMenuHandlers: FileViewChildProps["contextMenuHandlers"];
-}) {
+}: FileGridItemProps) {
   const imageSrc = useThumbnail(entry, currentPath);
 
   return (
@@ -165,3 +142,14 @@ function FileGridItem({
     </div>
   );
 }
+
+// Memoize items so they ne se remountent pas inutilement quand
+// la sélection d'autres éléments change.
+const MemoFileGridItem = memo(
+  FileGridItem,
+  (prev, next) =>
+    prev.entry.name === next.entry.name &&
+    prev.entry.isDirectory === next.entry.isDirectory &&
+    prev.currentPath === next.currentPath &&
+    prev.isSelected === next.isSelected
+);

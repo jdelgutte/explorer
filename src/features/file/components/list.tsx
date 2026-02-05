@@ -1,5 +1,6 @@
+import React, { memo, useCallback, useEffect, useState } from "react";
 import { DirEntry } from "@tauri-apps/plugin-fs";
-import { useEffect, useState } from "react";
+import { Virtuoso, type VirtuosoProps } from "react-virtuoso";
 import { cn } from "@/lib/utils";
 import {
   ContextMenu,
@@ -27,6 +28,17 @@ const COLUMN_LABELS: Record<ListColumnId, string> = {
   dateModified: "Date modified",
 };
 
+type FileListRowProps = {
+  entry: DirEntry;
+  currentPath: string | null;
+  isSelected: boolean;
+  metadata?: EntryMetadata;
+  columns: Record<ListColumnId, boolean>;
+  onSelect: (e: React.MouseEvent) => void;
+  onDoubleClick: () => void;
+  contextMenuHandlers: FileViewChildProps["contextMenuHandlers"];
+};
+
 export function FileList({
   entries,
   currentPath,
@@ -52,6 +64,32 @@ export function FileList({
       cancelled = true;
     };
   }, [currentPath, entries]);
+
+  const itemContent = useCallback<
+    NonNullable<VirtuosoProps<DirEntry, unknown>["itemContent"]>
+  >(
+    (index, entry) => (
+      <MemoListRow
+        entry={entry}
+        currentPath={currentPath}
+        isSelected={isEntrySelected(entry)}
+        metadata={metadata[entry.name]}
+        columns={columns}
+        onSelect={(e) => onSelect(entry, e.ctrlKey || e.metaKey)}
+        onDoubleClick={() => onDoubleClick(entry)}
+        contextMenuHandlers={contextMenuHandlers}
+      />
+    ),
+    [
+      columns,
+      contextMenuHandlers,
+      currentPath,
+      isEntrySelected,
+      metadata,
+      onDoubleClick,
+      onSelect,
+    ]
+  );
 
   if (entries.length === 0) {
     return <EmptyFile />;
@@ -105,22 +143,13 @@ export function FileList({
       </ContextMenu>
 
       {/* List body */}
-      <div className="flex-1 overflow-auto">
-        <div className="px-1.5 py-1">
-          {entries.map((entry) => (
-            <ListRow
-              key={entry.name}
-              entry={entry}
-              currentPath={currentPath}
-              isSelected={isEntrySelected(entry)}
-              metadata={metadata[entry.name]}
-              columns={columns}
-              onSelect={(e) => onSelect(entry, e.ctrlKey || e.metaKey)}
-              onDoubleClick={() => onDoubleClick(entry)}
-              contextMenuHandlers={contextMenuHandlers}
-            />
-          ))}
-        </div>
+      <div className="flex-1">
+        <Virtuoso
+          style={{ height: "100%" }}
+          totalCount={entries.length}
+          data={entries}
+          itemContent={itemContent}
+        />
       </div>
     </div>
   );
@@ -135,16 +164,7 @@ function ListRow({
   onSelect,
   onDoubleClick,
   contextMenuHandlers,
-}: {
-  entry: DirEntry;
-  currentPath: string | null;
-  isSelected: boolean;
-  metadata?: EntryMetadata;
-  columns: Record<ListColumnId, boolean>;
-  onSelect: (e: React.MouseEvent) => void;
-  onDoubleClick: () => void;
-  contextMenuHandlers: FileViewChildProps["contextMenuHandlers"];
-}) {
+}: FileListRowProps) {
   const imageSrc = useThumbnail(entry, currentPath);
 
   return (
@@ -225,3 +245,33 @@ function ListRow({
     </EntryContextMenu>
   );
 }
+
+// Memoize rows so they are not remounted à chaque changement de sélection d'autres éléments.
+const MemoListRow = memo(
+  ListRow,
+  (prev, next) => {
+    const columnsEqual =
+      prev.columns.name === next.columns.name &&
+      prev.columns.type === next.columns.type &&
+      prev.columns.size === next.columns.size &&
+      prev.columns.dateModified === next.columns.dateModified;
+
+    const prevM = prev.metadata;
+    const nextM = next.metadata;
+    const metadataEqual =
+      (!!prevM === !!nextM) &&
+      (!prevM ||
+        (prevM.size === nextM!.size &&
+          (prevM.mtime?.getTime() ?? 0) ===
+            (nextM!.mtime?.getTime() ?? 0)));
+
+    return (
+      prev.entry.name === next.entry.name &&
+      prev.entry.isDirectory === next.entry.isDirectory &&
+      prev.currentPath === next.currentPath &&
+      prev.isSelected === next.isSelected &&
+      columnsEqual &&
+      metadataEqual
+    );
+  }
+);

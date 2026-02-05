@@ -98,7 +98,8 @@ pub async fn image_thumbnail(
         .and_then(|m| m.modified().ok());
     let key = cache_key(&path_buf, mtime);
 
-    if let Some(cached) = cache.get(&key) {
+    // First try memory, then on-disk cache (and repopulate memory if found).
+    if let Some(cached) = cache.get_or_load(&key) {
         return Ok(cached);
     }
 
@@ -107,6 +108,7 @@ pub async fn image_thumbnail(
         .await
         .map_err(|e| format!("Task join: {}", e))??;
 
-    cache.insert(key, result.clone());
+    // Store in memory and persist to disk (if configured).
+    cache.insert_and_persist(key, result.clone());
     Ok(result)
 }

@@ -7,7 +7,7 @@ mod search;
 mod thumbnail_cache;
 mod trash;
 
-use tauri::{Emitter, Manager};
+use tauri::{path::BaseDirectory, Emitter, Manager};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -30,7 +30,21 @@ pub fn run() {
         .setup(|app| {
             let pdfium = pdf_thumbnail::init_pdfium_for_app();
             app.manage(pdf_thumbnail::PdfiumState(pdfium));
-            app.manage(thumbnail_cache::ThumbnailCache::default());
+
+            // Try to resolve an on-disk cache dir for thumbnails. If anything fails,
+            // we fall back to the previous purely in-memory cache behaviour.
+            let thumb_cache = app
+                .path()
+                .resolve("thumbnails", BaseDirectory::AppCache)
+                .ok()
+                .map(|dir| {
+                    // Best-effort directory creation; ignore errors.
+                    let _ = std::fs::create_dir_all(&dir);
+                    thumbnail_cache::ThumbnailCache::with_disk_dir(dir)
+                })
+                .unwrap_or_else(thumbnail_cache::ThumbnailCache::new);
+            app.manage(thumb_cache);
+
             app.manage(search::SearchState::default());
 
             let app_handle = app.app_handle().clone();

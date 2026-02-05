@@ -1085,6 +1085,7 @@ dependencies = [
  "pdfium-render",
  "serde",
  "serde_json",
+ "sha2",
  "sysinfo",
  "tauri",
  "tauri-build",

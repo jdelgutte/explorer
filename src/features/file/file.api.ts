@@ -182,4 +182,8 @@ export const fileApi = {
   /** PDF thumbnail as base64 PNG payload (prepend data:image/png;base64,). Cached in backend. */
   getPdfThumbnail: (path: string): Promise<string> =>
     invoke<string>("pdf_thumbnail", { path }),
+
+  /** Opens the system default terminal with the given directory as working directory. */
+  openInTerminal: (path: string): Promise<void> =>
+    invoke("open_in_terminal", { path }),
 };

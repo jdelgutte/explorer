@@ -4,6 +4,7 @@ mod devices;
 mod image_thumbnail;
 mod pdf_thumbnail;
 mod search;
+mod shell;
 mod thumbnail_cache;
 mod trash;
 
@@ -26,6 +27,7 @@ pub fn run() {
             image_thumbnail::image_thumbnail,
             search::start_search,
             search::cancel_search,
+            shell::open_in_terminal,
         ])
         .setup(|app| {
             let pdfium = pdf_thumbnail::init_pdfium_for_app();

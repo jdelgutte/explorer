@@ -17,7 +17,7 @@ interface TrashInfoActions {
 }
 
 export const useTrashInfoStore = create<TrashInfoState & TrashInfoActions>(
-  (set, get) => ({
+  (set, _) => ({
     itemCount: 0,
     totalSizeBytes: 0,
     restoreAvailable: false,

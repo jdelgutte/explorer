@@ -68,7 +68,7 @@ export function FileList({
   const itemContent = useCallback<
     NonNullable<VirtuosoProps<DirEntry, unknown>["itemContent"]>
   >(
-    (index, entry) => (
+    (_, entry) => (
       <MemoListRow
         entry={entry}
         currentPath={currentPath}

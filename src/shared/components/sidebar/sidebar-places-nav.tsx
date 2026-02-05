@@ -1,7 +1,7 @@
 import { Clock } from "lucide-react";
 import { useEffect } from "react";
 import { SidebarNavButton } from "@/shared/components/sidebar-nav-button";
-import { SIDEBAR_ITEMS, type SidebarItem } from "./constants";
+import { SIDEBAR_ITEMS } from "./constants";
 import type { SidebarSelection } from "./useSidebarSelection";
 import { useTrashInfoStore } from "@/features/file/store/trash-info.store";
 import { formatFileSize } from "@/features/file/utils/format";

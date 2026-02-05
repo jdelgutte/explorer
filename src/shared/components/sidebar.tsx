@@ -1,5 +1,4 @@
 import { cn } from "@/lib/utils";
-import { Separator } from "@/shared/components/ui/separator";
 import { useSidebarSelection } from "./sidebar/useSidebarSelection";
 import { SidebarPlacesNav } from "./sidebar/sidebar-places-nav";
 import { SidebarContent } from "./sidebar/sidebar-content";

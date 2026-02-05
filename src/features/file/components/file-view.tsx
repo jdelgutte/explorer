@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { join } from "@tauri-apps/api/path";
 import { DirEntry } from "@tauri-apps/plugin-fs";
 import { openPath } from "@tauri-apps/plugin-opener";
@@ -66,6 +67,21 @@ export function FileView() {
   );
   const { copy, cut, paste, deleteEntry } = useFileActions();
 
+  const handleOpenInTerminal = useCallback(
+    async (entry: DirEntry) => {
+      if (!entry.isDirectory || !currentPath) return;
+      const path = await join(currentPath, entry.name);
+      try {
+        await fileApi.openInTerminal(path);
+      } catch (err) {
+        toasts.error(
+          err instanceof Error ? err.message : "Failed to open terminal",
+        );
+      }
+    },
+    [currentPath],
+  );
+
   const contextMenuHandlers: EntryContextMenuHandlers = {
     onOpen: handleDoubleClick,
     onRename: (entry) => openRenameDialog(entry),
@@ -88,6 +104,7 @@ export function FileView() {
             });
           }
         : undefined,
+    onOpenInTerminal: currentPath ? handleOpenInTerminal : undefined,
   };
 
   const childProps: FileViewChildProps = {

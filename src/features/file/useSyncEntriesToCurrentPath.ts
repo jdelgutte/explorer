@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef } from "react";
 import { fileApi, isAccessDeniedError } from "@/features/file/file.api";
 import { useFileStore } from "@/features/file/store/file.store";
 import { useNavigationStore } from "@/features/navigation/store/navigation.store";
+import { usePreferencesStore } from "@/features/options/store/preferences.store";
 import { toasts } from "@/shared/toasts";
 import { UnwatchFn, watch } from "@tauri-apps/plugin-fs";
 
@@ -15,15 +16,16 @@ export function useSyncEntriesToCurrentPath(): void {
   const currentPath = useNavigationStore((s) => s.currentPath);
   const unwatchRef = useRef<UnwatchFn | null>(null);
 
+  const showHiddenFiles = usePreferencesStore((s) => s.showHiddenFiles);
   const refreshEntries = useCallback(async () => {
     if (!currentPath) return;
     try {
-      const entries = await fileApi.getEntries(currentPath);
+      const entries = await fileApi.getEntries(currentPath, { showHidden: showHiddenFiles });
       useFileStore.getState().setEntries(entries);
     } catch (err) {
       if (isAccessDeniedError(err)) toasts.accessDenied();
     }
-  }, [currentPath]);
+  }, [currentPath, showHiddenFiles]);
 
   useEffect(() => {
     if (!currentPath) return;

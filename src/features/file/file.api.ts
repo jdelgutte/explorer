@@ -39,11 +39,17 @@ export function isAccessDeniedError(err: unknown): boolean {
   );
 }
 
-/** Hidden files/dirs (name starting with .) are excluded. Folders first, then by name. */
+/** Optional: showHidden includes entries whose name starts with a dot. Folders first, then by name. */
 export const fileApi = {
-  getEntries: async (path: string): Promise<DirEntry[]> => {
+  getEntries: async (
+    path: string,
+    options?: { showHidden?: boolean }
+  ): Promise<DirEntry[]> => {
     const entries = await readDir(path);
-    const visible = entries.filter((e) => !e.name.startsWith("."));
+    const visible =
+      options?.showHidden === true
+        ? entries
+        : entries.filter((e) => !e.name.startsWith("."));
     return visible.sort((a, b) => {
       if (a.isDirectory !== b.isDirectory)
         return a.isDirectory ? -1 : 1;

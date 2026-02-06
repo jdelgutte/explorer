@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Search, RotateCcw } from "lucide-react";
+import { Search, RotateCcw, Settings } from "lucide-react";
 import { ViewModeToggle } from "@/features/viewmode/view-mode-toggle";
 import { NavigationButtons } from "@/features/navigation/components/navigation-buttons";
 import { Button } from "@/shared/components/ui/button";
 import { useNavigationStore } from "@/features/navigation/store/navigation.store";
 import { useFileStore } from "@/features/file/store/file.store";
 import { useTrashInfoStore } from "@/features/file/store/trash-info.store";
+import { useOptionsStore } from "@/features/options/store/options.store";
 import { fileApi } from "@/features/file/file.api";
 import { toasts } from "@/shared/toasts";
 
@@ -20,6 +21,7 @@ export function Toolbar() {
   const selectedItems = useFileStore((s) => s.selectedItems);
   const setEntries = useFileStore((s) => s.setEntries);
   const clearSelection = useFileStore((s) => s.clearSelection);
+  const setOptionsViewActive = useOptionsStore((s) => s.setOptionsViewActive);
 
   const isInTrash =
     currentPath && trashPath && currentPath === trashPath;
@@ -90,6 +92,17 @@ export function Toolbar() {
       <div className="flex shrink-0 items-center gap-2">
         <ViewModeToggle />
       </div>
+
+      {/* Options */}
+      <Button
+        variant="ghost"
+        size="icon"
+        className="size-8 shrink-0"
+        onClick={() => setOptionsViewActive(true)}
+        aria-label={t("sidebar.options")}
+      >
+        <Settings className="size-4" />
+      </Button>
     </header>
   );
 }

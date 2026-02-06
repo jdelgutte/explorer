@@ -11,8 +11,7 @@ import { RenameEntryDialog } from "@/features/file/components/rename-entry-dialo
 import { FileView } from "@/features/file/components/file-view";
 import { RecentList } from "@/features/recent/components/recent-list";
 import { useRecentStore } from "@/features/recent/store/recent.store";
-import { OptionsPage } from "@/features/options/components/options-page";
-import { useOptionsStore } from "@/features/options/store/options.store";
+import { OptionsDialog } from "@/features/options/components/options-dialog";
 import { TabBar } from "@/features/tabs/components/tab-bar";
 import { SearchDialog } from "@/features/search/components/search-dialog";
 import { useSearchDialogShortcut } from "@/features/search/useSearchDialogShortcut";
@@ -27,7 +26,6 @@ function App() {
   useSyncEntriesToCurrentPath();
   useInitialFolder();
   const recentsViewActive = useRecentStore((s) => s.recentsViewActive);
-  const optionsViewActive = useOptionsStore((s) => s.optionsViewActive);
 
   return (
     <div className="flex h-screen flex-col">
@@ -37,9 +35,7 @@ function App() {
         <main className="flex flex-1 flex-col min-h-0 min-w-0">
           <TabBar />
           <div className="flex-1 min-h-0 overflow-auto">
-            {optionsViewActive ? (
-              <OptionsPage />
-            ) : recentsViewActive ? (
+            {recentsViewActive ? (
               <nav className="p-3" aria-label={t("recent.title")}>
                 <RecentList
                   selectedRecentId={null}
@@ -59,6 +55,7 @@ function App() {
       <EmptyTrashDialog />
       <RenameEntryDialog />
       <PropertiesDialog />
+      <OptionsDialog />
       <Toaster />
     </div>
   );

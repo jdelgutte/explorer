@@ -18,6 +18,7 @@ import { useSearchDialogShortcut } from "@/features/search/useSearchDialogShortc
 import { Sidebar } from "@/shared/components/sidebar";
 import { Toaster } from "@/shared/components/ui/sonner";
 import { Toolbar } from "@/shared/components/toolbar";
+import { TooltipProvider } from "@/shared/components/ui/tooltip";
 
 function App() {
   const { t } = useTranslation();
@@ -28,6 +29,7 @@ function App() {
   const recentsViewActive = useRecentStore((s) => s.recentsViewActive);
 
   return (
+    <TooltipProvider>
     <div className="flex h-screen flex-col">
       <Toolbar />
       <div className="flex flex-1 min-h-0">
@@ -58,6 +60,7 @@ function App() {
       <OptionsDialog />
       <Toaster />
     </div>
+    </TooltipProvider>
   );
 }
 

@@ -8,8 +8,14 @@ import {
   Settings,
   Keyboard,
   Info,
+  HelpCircle,
 } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/shared/components/ui/tooltip";
 import {
   Select,
   SelectContent,
@@ -198,12 +204,25 @@ type SystemTabProps = {
 function SystemTab({ t, onSetAsDefault, onResetDefault }: SystemTabProps) {
   return (
     <section className="space-y-3">
-      <h2 className="text-sm font-medium text-muted-foreground">
-        {t("options.defaultFileManager")}
-      </h2>
-      <p className="text-sm text-muted-foreground">
-        {t("options.setAsDefaultDescription")}
-      </p>
+      <div className="flex items-center gap-1.5">
+        <h2 className="text-sm font-medium text-muted-foreground">
+          {t("options.defaultFileManager")}
+        </h2>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              type="button"
+              className="inline-flex size-4 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+              aria-label={t("options.setAsDefaultDescription")}
+            >
+              <HelpCircle className="size-3.5" />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="right" className="max-w-xs">
+            {t("options.setAsDefaultDescription")}
+          </TooltipContent>
+        </Tooltip>
+      </div>
       <div className="flex flex-wrap gap-2">
         <Button onClick={onSetAsDefault} variant="secondary">
           {t("options.setAsDefault")}
@@ -227,12 +246,25 @@ function GeneralTab({ t }: GeneralTabProps) {
   return (
     <div className="space-y-6">
       <section className="space-y-3">
-        <h2 className="text-sm font-medium text-muted-foreground">
-          {t("options.showHiddenFiles")}
-        </h2>
-        <p className="text-sm text-muted-foreground">
-          {t("options.showHiddenFilesDescription")}
-        </p>
+        <div className="flex items-center gap-1.5">
+          <h2 className="text-sm font-medium text-muted-foreground">
+            {t("options.showHiddenFiles")}
+          </h2>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                className="inline-flex size-4 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                aria-label={t("options.showHiddenFilesDescription")}
+              >
+                <HelpCircle className="size-3.5" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="right" className="max-w-xs">
+              {t("options.showHiddenFilesDescription")}
+            </TooltipContent>
+          </Tooltip>
+        </div>
         <Select
           value={showHiddenFiles ? "yes" : "no"}
           onValueChange={(v) => setShowHiddenFiles(v === "yes")}
@@ -281,12 +313,25 @@ function ShortcutsTab({ t }: ShortcutsTabProps) {
   ];
   return (
     <section className="space-y-3">
-      <h2 className="text-sm font-medium text-muted-foreground">
-        {t("options.shortcuts")}
-      </h2>
-      <p className="text-sm text-muted-foreground">
-        {t("options.shortcutsDescription")}
-      </p>
+      <div className="flex items-center gap-1.5">
+        <h2 className="text-sm font-medium text-muted-foreground">
+          {t("options.shortcuts")}
+        </h2>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              type="button"
+              className="inline-flex size-4 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+              aria-label={t("options.shortcutsDescription")}
+            >
+              <HelpCircle className="size-3.5" />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="right" className="max-w-xs">
+            {t("options.shortcutsDescription")}
+          </TooltipContent>
+        </Tooltip>
+      </div>
       <ul className="space-y-2 text-sm">
         {shortcuts.map(({ keys, labelKey }) => (
           <li
@@ -308,12 +353,25 @@ function AboutTab({ t }: AboutTabProps) {
   const version = "0.1.0";
   return (
     <section className="space-y-3">
-      <h2 className="text-sm font-medium text-muted-foreground">
-        {t("options.about")}
-      </h2>
-      <p className="text-sm text-muted-foreground">
-        {t("options.aboutDescription")}
-      </p>
+      <div className="flex items-center gap-1.5">
+        <h2 className="text-sm font-medium text-muted-foreground">
+          {t("options.about")}
+        </h2>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              type="button"
+              className="inline-flex size-4 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+              aria-label={t("options.aboutDescription")}
+            >
+              <HelpCircle className="size-3.5" />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="right" className="max-w-xs">
+            {t("options.aboutDescription")}
+          </TooltipContent>
+        </Tooltip>
+      </div>
       <p className="text-sm text-muted-foreground">
         {t("options.version")}: {version}
       </p>

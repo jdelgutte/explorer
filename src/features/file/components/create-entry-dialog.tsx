@@ -6,6 +6,7 @@ import { fileApi, isAccessDeniedError } from "@/features/file/file.api";
 import { useCreateDialogStore } from "@/features/file/store/create-dialog.store";
 import { useFileStore } from "@/features/file/store/file.store";
 import { useNavigationStore } from "@/features/navigation/store/navigation.store";
+import { usePreferencesStore } from "@/features/options/store/preferences.store";
 import { toasts } from "@/shared/toasts";
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -15,31 +16,25 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/shared/components/ui/dialog";
-import { cn } from "@/lib/utils";
-
-const inputClassName = cn(
-  "border-input bg-background ring-offset-background",
-  "flex h-10 w-full rounded-md border px-3 py-2 text-sm",
-  "placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-  "disabled:cursor-not-allowed disabled:opacity-50"
-);
+import { dialogInputClassName } from "@/lib/utils";
 
 export function CreateEntryDialog() {
   const { t } = useTranslation();
   const { open, createType, closeCreateDialog } = useCreateDialogStore();
   const currentPath = useNavigationStore((state) => state.currentPath);
   const setEntries = useFileStore((state) => state.setEntries);
+  const showHiddenFiles = usePreferencesStore((s) => s.showHiddenFiles);
   const [name, setName] = useState("");
 
   const refreshEntries = useCallback(async () => {
     if (!currentPath) return;
     try {
-      const entries = await fileApi.getEntries(currentPath);
+      const entries = await fileApi.getEntries(currentPath, { showHidden: showHiddenFiles });
       setEntries(entries);
     } catch (err) {
       if (isAccessDeniedError(err)) toasts.accessDenied();
     }
-  }, [currentPath, setEntries]);
+  }, [currentPath, setEntries, showHiddenFiles]);
 
   // Reset name when dialog opens
   useEffect(() => {
@@ -101,7 +96,7 @@ export function CreateEntryDialog() {
             if (e.key === "Enter") handleConfirm();
           }}
           placeholder={placeholder}
-          className={inputClassName}
+          className={dialogInputClassName}
           autoFocus
         />
         <DialogFooter>

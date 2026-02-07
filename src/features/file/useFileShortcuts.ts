@@ -1,7 +1,7 @@
 import { useEffect } from "react";
-import { doCopy, doCut, doPaste, doDelete } from "./file.actions";
-import { useRenameDialogStore } from "./store/rename-dialog.store";
-import { useFileStore } from "./store/file.store";
+import { doCopy, doCut, doPaste, doDelete } from "@/features/file/file.actions";
+import { useRenameDialogStore } from "@/features/file/store/rename-dialog.store";
+import { useFileStore } from "@/features/file/store/file.store";
 
 /** Returns true if the element is an editable field (we should not steal Ctrl+C/X/V). */
 function isEditableElement(el: EventTarget | null): boolean {

@@ -124,6 +124,7 @@ export async function doRename(entry: DirEntry, newName: string): Promise<void> 
     console.error("Rename failed:", err);
     if (isAccessDeniedError(err)) toasts.accessDenied();
     else toasts.renameFailed();
+    throw err;
   }
 }
 

@@ -1,12 +1,17 @@
 import type { LucideIcon } from "lucide-react";
-import { FilePlus, FolderPlus, Search, Trash2 } from "lucide-react";
+import { Eye, EyeOff, FilePlus, FolderPlus, Search, Trash2 } from "lucide-react";
 import { useCreateDialogStore } from "@/features/file/store/create-dialog.store";
 import { useTrashInfoStore } from "@/features/file/store/trash-info.store";
+import { usePreferencesStore } from "@/features/options/store/preferences.store";
 import { useSearchStore } from "@/features/search/store/search.store";
 import { useCommandPaletteShortcut } from "@/features/command/useCommandPaletteShortcut";
 
 /** Translation keys for command group headings. */
-export type CommandGroupName = "command.group.search" | "command.group.create" | "command.group.trash";
+export type CommandGroupName =
+  | "command.group.search"
+  | "command.group.view"
+  | "command.group.create"
+  | "command.group.trash";
 
 export type CommandConfig = {
   group: CommandGroupName;
@@ -21,6 +26,8 @@ export function useCommandPalette() {
   const openCreateDialog = useCreateDialogStore((state) => state.openCreateDialog);
   const openEmptyDialog = useTrashInfoStore((state) => state.openEmptyDialog);
   const setSearchDialogOpen = useSearchStore((state) => state.setSearchDialogOpen);
+  const showHiddenFiles = usePreferencesStore((s) => s.showHiddenFiles);
+  const setShowHiddenFiles = usePreferencesStore((s) => s.setShowHiddenFiles);
 
   const handleSelectCreate = (type: "file" | "folder") => {
     onOpenChange(false);
@@ -37,12 +44,23 @@ export function useCommandPalette() {
     openEmptyDialog();
   };
 
+  const handleToggleHiddenFiles = () => {
+    onOpenChange(false);
+    setShowHiddenFiles(!showHiddenFiles);
+  };
+
   const commands: CommandConfig[] = [
     {
       group: "command.group.search",
       label: "command.globalSearch",
       icon: Search,
       onSelect: handleSelectGlobalSearch,
+    },
+    {
+      group: "command.group.view",
+      label: showHiddenFiles ? "command.hideHiddenFiles" : "command.showHiddenFiles",
+      icon: showHiddenFiles ? EyeOff : Eye,
+      onSelect: handleToggleHiddenFiles,
     },
     {
       group: "command.group.create",
@@ -64,7 +82,12 @@ export function useCommandPalette() {
     },
   ];
 
-  const groups: CommandGroupName[] = ["command.group.search", "command.group.create", "command.group.trash"];
+  const groups: CommandGroupName[] = [
+    "command.group.search",
+    "command.group.view",
+    "command.group.create",
+    "command.group.trash",
+  ];
 
   return {
     open,

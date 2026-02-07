@@ -1,9 +1,9 @@
 import { join } from "@tauri-apps/api/path";
 import { DirEntry } from "@tauri-apps/plugin-fs";
 import { useEffect, useState } from "react";
-import { fileApi } from "./file.api";
-import { isImageFileName, isPdfFileName } from "./image-preview";
-import { thumbnailCache } from "./thumbnail-cache";
+import { fileApi } from "@/features/file/file.api";
+import { isImageFileName, isPdfFileName } from "@/features/file/image-preview";
+import { thumbnailCache } from "@/features/file/thumbnail-cache";
 
 /**
  * Loads the thumbnail URL for a single file entry (image or PDF).

@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { getInitialFolder } from "@/features/options/options.api";
-import { useNavigationStore } from "./store/navigation.store";
+import { useNavigationStore } from "@/features/navigation/store/navigation.store";
 
 /**
  * On mount, if the app was launched with a folder path (e.g. as default file manager),

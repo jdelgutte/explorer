@@ -1,6 +1,6 @@
 import { register, unregister } from "@tauri-apps/plugin-global-shortcut";
 import { useEffect } from "react";
-import { useSearchStore } from "./store/search.store";
+import { useSearchStore } from "@/features/search/store/search.store";
 
 const SEARCH_DIALOG_SHORTCUT = "CommandOrControl+Shift+F";
 

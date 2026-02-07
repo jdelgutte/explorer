@@ -12,14 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/shared/components/ui/dialog";
-import { cn } from "@/lib/utils";
-
-const inputClassName = cn(
-  "border-input bg-background ring-offset-background",
-  "flex h-10 w-full rounded-md border px-3 py-2 text-sm",
-  "placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-  "disabled:cursor-not-allowed disabled:opacity-50"
-);
+import { dialogInputClassName } from "@/lib/utils";
 
 export function RenameEntryDialog() {
   const { t } = useTranslation();
@@ -30,11 +23,15 @@ export function RenameEntryDialog() {
     if (open && entry) setName(entry.name);
   }, [open, entry]);
 
-  const handleConfirm = useCallback(() => {
+  const handleConfirm = useCallback(async () => {
     if (!entry || !name.trim()) return;
-    doRename(entry, name.trim());
-    closeRenameDialog();
-    setName("");
+    try {
+      await doRename(entry, name.trim());
+      closeRenameDialog();
+      setName("");
+    } catch {
+      // doRename shows toast and rethrows; keep dialog open on error
+    }
   }, [entry, name, closeRenameDialog]);
 
   const handleOpenChange = (next: boolean) => {
@@ -70,7 +67,7 @@ export function RenameEntryDialog() {
             if (e.key === "Escape") handleOpenChange(false);
           }}
           placeholder={entry.name}
-          className={inputClassName}
+          className={dialogInputClassName}
           autoFocus
           aria-label={t("file.newName")}
         />

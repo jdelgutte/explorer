@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { devicesApi, type MountableDevice } from "./devices.api";
+import { devicesApi, type MountableDevice } from "@/features/devices/devices.api";
 
 /**
  * Returns the list of mountable devices (disks/volumes), updated when the list

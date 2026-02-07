@@ -1,8 +1,8 @@
 import { useCallback } from "react";
 import { DirEntry } from "@tauri-apps/plugin-fs";
-import { doCopy, doCut, doPaste, doDelete } from "./file.actions";
-import { useRenameDialogStore } from "./store/rename-dialog.store";
-import { useFileStore } from "./store/file.store";
+import { doCopy, doCut, doPaste, doDelete } from "@/features/file/file.actions";
+import { useRenameDialogStore } from "@/features/file/store/rename-dialog.store";
+import { useFileStore } from "@/features/file/store/file.store";
 
 /**
  * Returns copy/cut/paste/delete/rename handlers for the context menu. Same logic is used by global shortcuts (DRY).

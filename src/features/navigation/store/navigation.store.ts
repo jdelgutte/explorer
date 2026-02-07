@@ -3,6 +3,11 @@ import {
   type TabNavigationState,
 } from "@/features/tabs/store/tabs.store";
 
+/**
+ * Facade over the active tab's navigation state in the tabs store.
+ * This is not a standalone Zustand store; it reads/writes via useTabsStore.
+ */
+
 /** Navigation state shape (for typing). */
 export interface NavigationState {
   currentPath: string;

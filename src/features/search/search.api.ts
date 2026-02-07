@@ -27,7 +27,7 @@ export type SearchDonePayload = {
 /** Starts a global search (from home if rootPath omitted); results are emitted via events in batches. Pass searchId so the frontend can set currentSearchId before any event arrives. */
 export const searchApi = {
   startSearch: (query: string, searchId: string): Promise<string> =>
-    invoke<string>("start_search", { query, search_id: searchId }),
+    invoke<string>("start_search", { query, searchId }),
 
   /** Cancels an ongoing search. No-op if the search is already finished or unknown. */
   cancelSearch: (searchId: string): Promise<void> =>

@@ -5,7 +5,6 @@ import { create } from "zustand";
 interface State {
   searchDialogOpen: boolean;
   query: string;
-  rootPath: string;
   queryResults: SearchResult[];
   isLoading: boolean;
   currentSearchId: string | null;
@@ -14,24 +13,21 @@ interface State {
 interface Actions {
   setSearchDialogOpen: (open: boolean) => void;
   setQuery: (query: string) => void;
-  setRootPath: (path: string) => void;
   appendResults: (searchId: string, results: SearchResult[]) => void;
   setSearchDone: (searchId: string) => void;
   clearResults: () => void;
-  startSearch: (rootPath: string, query: string) => Promise<void>;
+  startSearch: (query: string) => Promise<void>;
 }
 
 export const useSearchStore = create<State & Actions>((set, get) => ({
   searchDialogOpen: false,
   query: "",
-  rootPath: "",
   queryResults: [],
   isLoading: false,
   currentSearchId: null,
 
   setSearchDialogOpen: (searchDialogOpen) => set({ searchDialogOpen }),
   setQuery: (query) => set({ query }),
-  setRootPath: (rootPath) => set({ rootPath }),
 
   appendResults: (searchId, results) => {
     const { currentSearchId, queryResults } = get();
@@ -52,10 +48,9 @@ export const useSearchStore = create<State & Actions>((set, get) => ({
       currentSearchId: null,
     }),
 
-  startSearch: async (rootPath, query) => {
+  startSearch: async (query) => {
     const searchId = crypto.randomUUID();
     set({
-      rootPath,
       query,
       queryResults: [],
       isLoading: true,
@@ -63,7 +58,7 @@ export const useSearchStore = create<State & Actions>((set, get) => ({
     });
 
     try {
-      await searchApi.startSearch(rootPath, query, searchId);
+      await searchApi.startSearch(query, searchId);
     } catch (e) {
       console.error("Search failed:", e);
       set({ isLoading: false, currentSearchId: null });

@@ -1,18 +1,11 @@
-import { useCallback } from "react";
-import { join } from "@tauri-apps/api/path";
+import { useEffect, useMemo } from "react";
 import { DirEntry } from "@tauri-apps/plugin-fs";
-import { openPath } from "@tauri-apps/plugin-opener";
 import { Loader2 } from "lucide-react";
-import { usePropertiesDialogStore } from "@/features/file/store/properties-dialog.store";
-import { useRenameDialogStore } from "@/features/file/store/rename-dialog.store";
-import { useFileActions } from "@/features/file/useFileActions";
-import { fileApi, isAccessDeniedError } from "@/features/file/file.api";
-import { useFileStore, isEntrySelected as isEntrySelectedFn } from "@/features/file/store/file.store";
+import { useDirectoryFilterStore } from "@/features/file/store/directory-filter.store";
+import { useFileStore } from "@/features/file/store/file.store";
 import { useNavigationStore } from "@/features/navigation/store/navigation.store";
 import { useViewStore } from "@/features/viewmode/view.store";
-import { useQuickAccessStore } from "@/features/quick-access/store/quick-access.store";
-import { useRecentStore } from "@/features/recent/store/recent.store";
-import { toasts } from "@/shared/toasts";
+import { useFileViewHandlers } from "@/features/file/useFileViewHandlers";
 import type { EntryContextMenuHandlers } from "./entry-context-menu";
 import { FileGrid } from "./grid";
 import { FileList } from "./list";
@@ -28,86 +21,30 @@ export type FileViewChildProps = {
 };
 
 export function FileView() {
-  const { entries, selectedItems, selectEntry, clearSelection, entriesLoading } =
-    useFileStore();
-  const { currentPath, setCurrentPath } = useNavigationStore();
-  const viewMode = useViewStore((state) => state.viewMode);
+  const { entries, entriesLoading } = useFileStore();
+  const currentPath = useNavigationStore((s) => s.currentPath);
+  const directoryFilter = useDirectoryFilterStore((s) => s.directoryFilter);
+  const setDirectoryFilter = useDirectoryFilterStore((s) => s.setDirectoryFilter);
+  const viewMode = useViewStore((s) => s.viewMode);
+  const {
+    isEntrySelected,
+    handleSelect,
+    handleDoubleClick,
+    contextMenuHandlers,
+  } = useFileViewHandlers();
 
-  const isEntrySelected = (entry: DirEntry) =>
-    isEntrySelectedFn(entry, selectedItems);
+  useEffect(() => {
+    setDirectoryFilter("");
+  }, [currentPath, setDirectoryFilter]);
 
-  const handleSelect = (entry: DirEntry, additive: boolean) => {
-    selectEntry(entry, additive);
-  };
-
-  const addRecent = useRecentStore((s) => s.add);
-
-  const handleDoubleClick = async (entry: DirEntry) => {
-    const path = await join(currentPath, entry.name);
-    if (entry.isDirectory) {
-      try {
-        await fileApi.getEntries(path);
-        setCurrentPath(path);
-        clearSelection();
-      } catch (err) {
-        if (isAccessDeniedError(err)) toasts.accessDenied();
-      }
-    } else {
-      addRecent(path, entry.name, false);
-      await openPath(path);
-    }
-  };
-
-  const addToQuickAccess = useQuickAccessStore((s) => s.add);
-  const hasPathInQuickAccess = useQuickAccessStore((s) => s.hasPath);
-  const openRenameDialog = useRenameDialogStore((s) => s.openRenameDialog);
-  const openPropertiesDialog = usePropertiesDialogStore(
-    (s) => s.openPropertiesDialog,
-  );
-  const { copy, cut, paste, deleteEntry } = useFileActions();
-
-  const handleOpenInTerminal = useCallback(
-    async (entry: DirEntry) => {
-      if (!entry.isDirectory || !currentPath) return;
-      const path = await join(currentPath, entry.name);
-      try {
-        await fileApi.openInTerminal(path);
-      } catch (err) {
-        toasts.error(
-          err instanceof Error ? err.message : "Failed to open terminal",
-        );
-      }
-    },
-    [currentPath],
-  );
-
-  const contextMenuHandlers: EntryContextMenuHandlers = {
-    onOpen: handleDoubleClick,
-    onRename: (entry) => openRenameDialog(entry),
-    onProperties: (entry) => openPropertiesDialog(entry, currentPath),
-    onCopy: (entry) => copy(entry),
-    onCut: (entry) => cut(entry),
-    onPaste: () => paste(),
-    onDelete: (entry) => deleteEntry(entry),
-    onAddToQuickAccess:
-      currentPath
-        ? (entry: DirEntry) => {
-            if (!entry.isDirectory) return;
-            join(currentPath, entry.name).then((path) => {
-              if (hasPathInQuickAccess(path)) {
-                toasts.alreadyInQuickAccess();
-                return;
-              }
-              addToQuickAccess(path, entry.name);
-              toasts.addedToQuickAccess(entry.name);
-            });
-          }
-        : undefined,
-    onOpenInTerminal: currentPath ? handleOpenInTerminal : undefined,
-  };
+  const filteredEntries = useMemo(() => {
+    if (!directoryFilter.trim()) return entries;
+    const q = directoryFilter.trim().toLowerCase();
+    return entries.filter((e) => e.name.toLowerCase().includes(q));
+  }, [entries, directoryFilter]);
 
   const childProps: FileViewChildProps = {
-    entries,
+    entries: filteredEntries,
     currentPath,
     isEntrySelected,
     onSelect: handleSelect,

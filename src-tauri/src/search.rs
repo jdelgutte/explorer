@@ -62,7 +62,8 @@ pub struct SearchDonePayload {
     pub search_id: String,
 }
 
-/// Starts a global search under `root_path` for entries whose name contains `query` (case-insensitive).
+/// Starts a global search for entries whose name contains `query` (case-insensitive).
+/// If `root_path` is provided and is a directory, search is limited to that tree; otherwise uses the user's home directory.
 /// Emits `search-results` in batches and `search-done` when finished.
 /// Uses `search_id` from the frontend so it can set the current search before events arrive.
 /// The search can be cancelled via `cancel_search(search_id)`.
@@ -70,17 +71,22 @@ pub struct SearchDonePayload {
 pub fn start_search(
     app: AppHandle,
     state: State<'_, SearchState>,
-    root_path: String,
     query: String,
     search_id: String,
+    root_path: Option<String>,
 ) -> Result<String, String> {
     let search_id_return = search_id.clone();
     let query_lower = query.to_lowercase();
-    let root = PathBuf::from(&root_path);
-
-    if !root.is_dir() {
-        return Err(format!("Not a directory: {}", root_path));
-    }
+    let root = root_path
+        .filter(|p| !p.is_empty())
+        .map(PathBuf::from)
+        .filter(|p| p.is_dir())
+        .or_else(|| {
+            std::env::var_os("HOME")
+                .map(PathBuf::from)
+                .filter(|p| p.is_dir())
+        })
+        .ok_or_else(|| "No search root available (provide a valid root_path or set HOME)".to_string())?;
 
     let cancel = Arc::new(AtomicBool::new(false));
     state

@@ -25,18 +25,15 @@ const RESULTS_THROTTLE_MS = 150;
 
 export function SearchDialog() {
   const { t } = useTranslation();
-  const currentPath = useNavigationStore((s) => s.currentPath);
   const setCurrentPath = useNavigationStore((s) => s.setCurrentPath);
   const {
     searchDialogOpen: isOpen,
     setSearchDialogOpen,
     query,
-    rootPath,
     queryResults,
     isLoading,
     currentSearchId,
     setQuery,
-    setRootPath,
     startSearch,
     clearResults,
   } = useSearchStore();
@@ -96,20 +93,11 @@ export function SearchDialog() {
     };
   }, [flushResultsToStore, flushResultsImmediate]);
 
-  // When dialog opens, set root path to current path (search runs from current folder)
+  // Run global search when debounced query has enough characters
   useEffect(() => {
-    if (isOpen && currentPath) {
-      setRootPath(currentPath);
-    }
-  }, [isOpen, currentPath, setRootPath]);
-
-  // Run search only when debounced query has more than 2 characters
-  useEffect(() => {
-    if (!isOpen || !rootPath) return;
-    if (debouncedQuery.length < MIN_QUERY_LENGTH) return;
-
-    startSearch(rootPath, debouncedQuery);
-  }, [isOpen, rootPath, debouncedQuery, startSearch]);
+    if (!isOpen || debouncedQuery.length < MIN_QUERY_LENGTH) return;
+    startSearch(debouncedQuery);
+  }, [isOpen, debouncedQuery, startSearch]);
 
   const handleResultDoubleClick = useCallback(
     async (result: SearchResult) => {

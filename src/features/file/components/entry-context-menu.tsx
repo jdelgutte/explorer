@@ -36,14 +36,12 @@ export type EntryContextMenuHandlers = {
 
 type EntryContextMenuProps = {
   entry: DirEntry;
-  currentPath: string | null;
   handlers: EntryContextMenuHandlers;
   children: React.ReactNode;
 };
 
 export function EntryContextMenu({
   entry,
-  currentPath: _currentPath,
   handlers,
   children,
 }: EntryContextMenuProps) {

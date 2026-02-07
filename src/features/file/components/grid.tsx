@@ -97,11 +97,7 @@ function FileGridItem({
 
   return (
     <div className="flex shrink-0">
-      <EntryContextMenu
-        entry={entry}
-        currentPath={currentPath}
-        handlers={contextMenuHandlers}
-      >
+      <EntryContextMenu entry={entry} handlers={contextMenuHandlers}>
         <div className="contents">
           <button
             type="button"
@@ -143,8 +139,7 @@ function FileGridItem({
   );
 }
 
-// Memoize items so they ne se remountent pas inutilement quand
-// la sélection d'autres éléments change.
+// Memoize items so they do not remount unnecessarily when other entries' selection changes.
 const MemoFileGridItem = memo(
   FileGridItem,
   (prev, next) =>

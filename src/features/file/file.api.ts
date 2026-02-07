@@ -9,6 +9,7 @@ import {
   stat,
   writeTextFile,
 } from "@tauri-apps/plugin-fs";
+import { pathBasenameOrPath } from "@/lib/path-utils";
 
 export type EntryMetadata = {
   size: number;
@@ -139,7 +140,7 @@ export const fileApi = {
    */
   copyPath: async (srcPath: string, destDir: string): Promise<void> => {
     const info = await stat(srcPath);
-    const baseName = srcPath.replace(/^.*[/\\]/, "") || srcPath;
+    const baseName = pathBasenameOrPath(srcPath);
     const destPath = await join(destDir, baseName);
 
     if (info.isFile) {
@@ -162,7 +163,7 @@ export const fileApi = {
    * Destination is destDir/basename(srcPath).
    */
   movePath: async (srcPath: string, destDir: string): Promise<void> => {
-    const baseName = srcPath.replace(/^.*[/\\]/, "") || srcPath;
+    const baseName = pathBasenameOrPath(srcPath);
     const destPath = await join(destDir, baseName);
     await rename(srcPath, destPath);
   },

@@ -1,10 +1,20 @@
 import type { DirEntry } from "@tauri-apps/plugin-fs";
+import type { TabFileState } from "@/features/tabs/store/tabs.store";
 import { useTabsStore } from "@/features/tabs/store/tabs.store";
 
 /**
  * Facade over the active tab's file state in the tabs store.
  * This is not a standalone Zustand store; it reads/writes via useTabsStore.
  */
+
+/** Builds the file state shape with derived selectedItem (last in selection). */
+function getFileStateFromTab(file: TabFileState) {
+  const selectedItem =
+    file.selectedItems.length > 0
+      ? file.selectedItems[file.selectedItems.length - 1]
+      : null;
+  return { ...file, selectedItem };
+}
 
 /** Same entry = same name and type (file/dir). */
 function sameEntry(a: DirEntry, b: DirEntry): boolean {
@@ -100,13 +110,8 @@ function useFileStore<T>(
   }) => T,
 ) {
   const file = useTabsStore((s) => s.getFileState(s.activeTabId));
-  const selectedItem =
-    file.selectedItems.length > 0
-      ? file.selectedItems[file.selectedItems.length - 1]
-      : null;
   const state = {
-    ...file,
-    selectedItem,
+    ...getFileStateFromTab(file),
     setEntries,
     setEntriesLoading,
     selectEntry,
@@ -119,13 +124,8 @@ function useFileStore<T>(
 useFileStore.getState = () => {
   const tabs = useTabsStore.getState();
   const file = tabs.getFileState(tabs.activeTabId);
-  const selectedItem =
-    file.selectedItems.length > 0
-      ? file.selectedItems[file.selectedItems.length - 1]
-      : null;
   return {
-    ...file,
-    selectedItem,
+    ...getFileStateFromTab(file),
     setEntries,
     setEntriesLoading,
     selectEntry,

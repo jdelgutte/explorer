@@ -6,6 +6,16 @@ import { usePreferencesStore } from "@/features/options/store/preferences.store"
 import { toasts } from "@/shared/toasts";
 import { UnwatchFn, watch } from "@tauri-apps/plugin-fs";
 
+/** Centralized error handling for sync entries (toast + log). Caller should set entriesLoading to false when needed. */
+function handleSyncEntriesError(err: unknown): void {
+  if (isAccessDeniedError(err)) {
+    toasts.accessDenied();
+  } else {
+    console.error("Sync entries failed", err);
+    toasts.loadFolderFailed();
+  }
+}
+
 /**
  * Syncs the file store entries with the current navigation path.
  * When currentPath changes, fetches directory entries and updates the store.
@@ -25,12 +35,7 @@ export function useSyncEntriesToCurrentPath(): void {
       const entries = await fileApi.getEntries(currentPath, { showHidden: showHiddenFiles });
       setEntries(entries);
     } catch (err) {
-      if (isAccessDeniedError(err)) {
-        toasts.accessDenied();
-      } else {
-        console.error("Sync entries failed", err);
-        toasts.loadFolderFailed();
-      }
+      handleSyncEntriesError(err);
     } finally {
       useFileStore.getState().setEntriesLoading(false);
     }
@@ -45,11 +50,7 @@ export function useSyncEntriesToCurrentPath(): void {
         if (!cancelled) await refreshEntries();
       } catch (err) {
         if (!cancelled) {
-          if (isAccessDeniedError(err)) toasts.accessDenied();
-          else {
-            console.error("Sync entries failed", err);
-            toasts.loadFolderFailed();
-          }
+          handleSyncEntriesError(err);
           useFileStore.getState().setEntriesLoading(false);
         }
       }

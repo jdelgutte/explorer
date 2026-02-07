@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { pathBasename } from "@/lib/path-utils";
 
 export type QuickAccessItem = {
   id: string;
@@ -29,7 +30,7 @@ export const useQuickAccessStore = create<State & Actions>()(
         set({
           items: [
             ...items,
-            { id: crypto.randomUUID(), path, name: name || path.split(/[/\\]/).pop() || "Folder" },
+            { id: crypto.randomUUID(), path, name: name || pathBasename(path, "Folder") },
           ],
         });
       },

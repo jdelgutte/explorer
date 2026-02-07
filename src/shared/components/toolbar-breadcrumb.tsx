@@ -2,6 +2,7 @@ import { Fragment, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { homeDir } from "@tauri-apps/api/path";
 import { Home, HardDrive } from "lucide-react";
+import { normalizePath } from "@/lib/path-utils";
 import { useNavigationStore } from "@/features/navigation/store/navigation.store";
 import {
   Breadcrumb,
@@ -11,11 +12,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/shared/components/ui/breadcrumb";
-
-/** Normalize path for comparison (slash style and trailing). */
-function normalizePath(p: string): string {
-  return p.replace(/\\/g, "/").replace(/\/+$/, "") || "/";
-}
 
 /** True if path is the home directory or a descendant of it. */
 function isUnderHome(path: string, homePath: string | null): boolean {

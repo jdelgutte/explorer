@@ -194,11 +194,7 @@ function ListRow({
   const imageSrc = useThumbnail(entry, currentPath);
 
   return (
-    <EntryContextMenu
-      entry={entry}
-      currentPath={currentPath}
-      handlers={contextMenuHandlers}
-    >
+    <EntryContextMenu entry={entry} handlers={contextMenuHandlers}>
       <div className="contents">
         <button
           type="button"
@@ -273,7 +269,7 @@ function ListRow({
   );
 }
 
-// Memoize rows so they are not remounted à chaque changement de sélection d'autres éléments.
+// Memoize rows so they are not remounted on every change of other entries' selection.
 const MemoListRow = memo(
   ListRow,
   (prev, next) => {

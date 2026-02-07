@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { normalizePath, pathBasename } from "@/lib/path-utils";
 
 export type RecentItem = {
   id: string;
@@ -10,11 +11,6 @@ export type RecentItem = {
 };
 
 const MAX_RECENT = 25;
-
-function nameFromPath(path: string, isDirectory: boolean): string {
-  const segment = path.split(/[/\\]/).filter(Boolean).pop();
-  return segment || (isDirectory ? "Folder" : "File");
-}
 
 interface State {
   items: RecentItem[];
@@ -39,8 +35,8 @@ export const useRecentStore = create<State & Actions>()(
       setRecentsViewActive: (active) => set({ recentsViewActive: active }),
 
       add: (path, name, isDirectory = false) => {
-        const normalized = path.replace(/\/+$/, "") || path;
-        const displayName = name ?? nameFromPath(normalized, isDirectory);
+        const normalized = normalizePath(path) || path;
+        const displayName = name ?? pathBasename(normalized, isDirectory ? "Folder" : "File");
         set((state) => {
           const existing = state.items.find((item) => item.path === normalized);
           const rest = state.items.filter((item) => item.path !== normalized);

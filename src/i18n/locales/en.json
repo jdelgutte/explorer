@@ -135,6 +135,11 @@
   "toast.alreadyInQuickAccess": "Already in Quick access",
   "toast.addedToQuickAccess": "\"{{name}}\" added to Quick access",
   "toast.accessDenied": "Access denied to this folder or file.",
+  "toast.loadFolderFailed": "Failed to load folder contents.",
+
+  "errorBoundary.title": "Something went wrong",
+  "errorBoundary.description": "An unexpected error occurred. You can try again or restart the app.",
+  "errorBoundary.retry": "Try again",
 
   "breadcrumb.more": "More",
   "dialog.close": "Close",

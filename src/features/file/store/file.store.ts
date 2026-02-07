@@ -1,6 +1,11 @@
 import type { DirEntry } from "@tauri-apps/plugin-fs";
 import { useTabsStore } from "@/features/tabs/store/tabs.store";
 
+/**
+ * Facade over the active tab's file state in the tabs store.
+ * This is not a standalone Zustand store; it reads/writes via useTabsStore.
+ */
+
 /** Same entry = same name and type (file/dir). */
 function sameEntry(a: DirEntry, b: DirEntry): boolean {
   return a.name === b.name && a.isDirectory === b.isDirectory;
@@ -18,7 +23,15 @@ function setEntries(entries: DirEntry[]): void {
   const active = tabs.activeTabId;
   if (!active) return;
   const file = tabs.getFileState(active);
-  tabs.setTabFile(active, { ...file, entries });
+  tabs.setTabFile(active, { ...file, entries, entriesLoading: false });
+}
+
+function setEntriesLoading(loading: boolean): void {
+  const tabs = useTabsStore.getState();
+  const active = tabs.activeTabId;
+  if (!active) return;
+  const file = tabs.getFileState(active);
+  tabs.setTabFile(active, { ...file, entriesLoading: loading });
 }
 
 /** Select one entry (replace selection) or toggle in selection when additive (e.g. Ctrl+click). */
@@ -50,13 +63,15 @@ function clearSelection(): void {
   tabs.setTabFile(active, { ...file, selectedItems: [] });
 }
 
-/** Facade over the active tab's file state in the tabs store. */
 function useFileStore(): {
   entries: DirEntry[];
   selectedItems: DirEntry[];
+  /** True while directory entries are being fetched. */
+  entriesLoading: boolean;
   /** Focused item (last in selection), for F2 rename / single-item actions. */
   selectedItem: DirEntry | null;
   setEntries: (entries: DirEntry[]) => void;
+  setEntriesLoading: (loading: boolean) => void;
   selectEntry: (entry: DirEntry, additive: boolean) => void;
   clearSelection: () => void;
 };
@@ -64,8 +79,10 @@ function useFileStore<T>(
   selector: (state: {
     entries: DirEntry[];
     selectedItems: DirEntry[];
+    entriesLoading: boolean;
     selectedItem: DirEntry | null;
     setEntries: (entries: DirEntry[]) => void;
+    setEntriesLoading: (loading: boolean) => void;
     selectEntry: (entry: DirEntry, additive: boolean) => void;
     clearSelection: () => void;
   }) => T,
@@ -74,8 +91,10 @@ function useFileStore<T>(
   selector?: (state: {
     entries: DirEntry[];
     selectedItems: DirEntry[];
+    entriesLoading: boolean;
     selectedItem: DirEntry | null;
     setEntries: (entries: DirEntry[]) => void;
+    setEntriesLoading: (loading: boolean) => void;
     selectEntry: (entry: DirEntry, additive: boolean) => void;
     clearSelection: () => void;
   }) => T,
@@ -89,6 +108,7 @@ function useFileStore<T>(
     ...file,
     selectedItem,
     setEntries,
+    setEntriesLoading,
     selectEntry,
     clearSelection,
   };
@@ -107,6 +127,7 @@ useFileStore.getState = () => {
     ...file,
     selectedItem,
     setEntries,
+    setEntriesLoading,
     selectEntry,
     clearSelection,
   };

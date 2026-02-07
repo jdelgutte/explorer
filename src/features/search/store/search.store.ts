@@ -1,5 +1,5 @@
-import type { SearchResult } from "../search.api";
-import { searchApi } from "../search.api";
+import type { SearchResult } from "@/features/search/search.api";
+import { searchApi } from "@/features/search/search.api";
 import { create } from "zustand";
 
 interface State {

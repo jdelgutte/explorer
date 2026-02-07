@@ -7,9 +7,9 @@ import { useTranslation } from "react-i18next";
 import { useThrottleFn } from "ahooks";
 import { openPath } from "@tauri-apps/plugin-opener";
 import { useNavigationStore } from "@/features/navigation/store/navigation.store";
-import type { SearchResult } from "../search.api";
-import { searchApi } from "../search.api";
-import { useSearchStore } from "../store/search.store";
+import type { SearchResult } from "@/features/search/search.api";
+import { searchApi } from "@/features/search/search.api";
+import { useSearchStore } from "@/features/search/store/search.store";
 import { cn } from "@/lib/utils";
 import {
   Dialog,

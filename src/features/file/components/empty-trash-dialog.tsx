@@ -11,9 +11,9 @@ import {
   DialogTitle,
 } from "@/shared/components/ui/dialog";
 import { Button } from "@/shared/components/ui/button";
-import { fileApi } from "../file.api";
+import { fileApi } from "@/features/file/file.api";
+import { useTrashInfoStore } from "@/features/file/store/trash-info.store";
 import { toasts } from "@/shared/toasts";
-import { useTrashInfoStore } from "../store/trash-info.store";
 
 export function EmptyTrashDialog() {
   const { t } = useTranslation();

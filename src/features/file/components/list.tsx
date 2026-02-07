@@ -10,17 +10,17 @@ import {
   ContextMenuLabel,
   ContextMenuTrigger,
 } from "@/shared/components/ui/context-menu";
+import { fileApi, type EntryMetadata } from "@/features/file/file.api";
+import type { FileViewChildProps } from "@/features/file/components/file-view";
 import { EmptyFile } from "./empty-file";
 import { EntryContextMenu } from "./entry-context-menu";
 import { EntryIcon } from "./entry-icon";
-import type { FileViewChildProps } from "./file-view";
-import { fileApi, type EntryMetadata } from "../file.api";
 import {
   useListColumnsStore,
   type ListColumnId,
-} from "../store/list-columns.store";
-import { formatDate, formatFileSize } from "../utils/format";
-import { useThumbnail } from "../useThumbnail";
+} from "@/features/file/store/list-columns.store";
+import { formatDate, formatFileSize } from "@/features/file/utils/format";
+import { useThumbnail } from "@/features/file/useThumbnail";
 
 const COLUMN_KEYS: Record<ListColumnId, string> = {
   name: "file.list.name",

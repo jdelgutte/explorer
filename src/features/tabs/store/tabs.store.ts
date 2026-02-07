@@ -12,6 +12,8 @@ export interface TabNavigationState {
 export interface TabFileState {
   entries: DirEntry[];
   selectedItems: DirEntry[];
+  /** True while directory entries are being fetched for this tab. */
+  entriesLoading: boolean;
 }
 
 export interface TabSlice {
@@ -28,6 +30,7 @@ export const DEFAULT_NAV: TabNavigationState = {
 export const DEFAULT_FILE: TabFileState = {
   entries: [],
   selectedItems: [],
+  entriesLoading: false,
 };
 
 function createDefaultTabSlice(): TabSlice {

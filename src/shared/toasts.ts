@@ -48,6 +48,7 @@ export const toasts = {
     toast.success(i18n.t("toast.addedToQuickAccess", { name })),
 
   accessDenied: () => toast.error(i18n.t("toast.accessDenied")),
+  loadFolderFailed: () => toast.error(i18n.t("toast.loadFolderFailed")),
 
   error: (message: string) => toast.error(message),
 };

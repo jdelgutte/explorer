@@ -11,7 +11,7 @@ import { useNavigationStore } from "@/features/navigation/store/navigation.store
 import {
   useQuickAccessStore,
   type QuickAccessItem,
-} from "../store/quick-access.store";
+} from "@/features/quick-access/store/quick-access.store";
 
 type QuickAccessListProps = {
   selectedQuickAccessId: string | null;

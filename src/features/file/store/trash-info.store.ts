@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { fileApi } from "../file.api";
+import { fileApi } from "@/features/file/file.api";
 
 interface TrashInfoState {
   itemCount: number;

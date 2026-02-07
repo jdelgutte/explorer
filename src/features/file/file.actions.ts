@@ -72,6 +72,7 @@ export async function doPaste(): Promise<void> {
     return;
   }
 
+  // Sequential paste to avoid overwhelming the filesystem and to preserve order.
   try {
     for (const srcPath of paths) {
       if (mode === "copy") {

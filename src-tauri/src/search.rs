@@ -9,6 +9,17 @@ use std::thread;
 use tauri::{AppHandle, Emitter, State};
 use walkdir::WalkDir;
 
+/// When dropped, removes the search_id from cancel_flags so the entry is cleaned up on normal exit or panic.
+struct SearchCancelGuard {
+    cancel_flags: Arc<Mutex<HashMap<String, Arc<AtomicBool>>>>,
+    search_id: String,
+}
+impl Drop for SearchCancelGuard {
+    fn drop(&mut self) {
+        let _ = self.cancel_flags.lock().map(|mut g| g.remove(&self.search_id));
+    }
+}
+
 /// Shared state for cancelling ongoing searches.
 pub struct SearchState {
     pub cancel_flags: Arc<Mutex<HashMap<String, Arc<AtomicBool>>>>,
@@ -81,6 +92,11 @@ pub fn start_search(
     let cancel_flags = state.cancel_flags.clone();
 
     thread::spawn(move || {
+        let _guard = SearchCancelGuard {
+            cancel_flags: cancel_flags.clone(),
+            search_id: search_id.clone(),
+        };
+
         let mut batch: Vec<SearchResult> = Vec::with_capacity(BATCH_SIZE);
 
         for entry in WalkDir::new(&root)
@@ -130,7 +146,6 @@ pub fn start_search(
         }
 
         let _ = app.emit(SEARCH_DONE, SearchDonePayload { search_id: search_id.clone() });
-        let _ = cancel_flags.lock().map(|mut g| g.remove(&search_id));
     });
 
     Ok(search_id_return)

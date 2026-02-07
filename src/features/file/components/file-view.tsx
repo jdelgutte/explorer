@@ -2,10 +2,12 @@ import { useCallback } from "react";
 import { join } from "@tauri-apps/api/path";
 import { DirEntry } from "@tauri-apps/plugin-fs";
 import { openPath } from "@tauri-apps/plugin-opener";
+import { Loader2 } from "lucide-react";
 import { usePropertiesDialogStore } from "@/features/file/store/properties-dialog.store";
 import { useRenameDialogStore } from "@/features/file/store/rename-dialog.store";
 import { useFileActions } from "@/features/file/useFileActions";
-import { useFileStore } from "../store/file.store";
+import { fileApi, isAccessDeniedError } from "@/features/file/file.api";
+import { useFileStore, isEntrySelected as isEntrySelectedFn } from "@/features/file/store/file.store";
 import { useNavigationStore } from "@/features/navigation/store/navigation.store";
 import { useViewStore } from "@/features/viewmode/view.store";
 import { useQuickAccessStore } from "@/features/quick-access/store/quick-access.store";
@@ -14,7 +16,6 @@ import { toasts } from "@/shared/toasts";
 import type { EntryContextMenuHandlers } from "./entry-context-menu";
 import { FileGrid } from "./grid";
 import { FileList } from "./list";
-import { fileApi, isAccessDeniedError } from "../file.api";
 
 /** Props passed to list/grid by the parent. */
 export type FileViewChildProps = {
@@ -27,15 +28,13 @@ export type FileViewChildProps = {
 };
 
 export function FileView() {
-  const { entries, selectedItems, selectEntry, clearSelection } =
+  const { entries, selectedItems, selectEntry, clearSelection, entriesLoading } =
     useFileStore();
   const { currentPath, setCurrentPath } = useNavigationStore();
   const viewMode = useViewStore((state) => state.viewMode);
 
   const isEntrySelected = (entry: DirEntry) =>
-    selectedItems.some(
-      (s) => s.name === entry.name && s.isDirectory === entry.isDirectory,
-    );
+    isEntrySelectedFn(entry, selectedItems);
 
   const handleSelect = (entry: DirEntry, additive: boolean) => {
     selectEntry(entry, additive);
@@ -115,6 +114,14 @@ export function FileView() {
     onDoubleClick: handleDoubleClick,
     contextMenuHandlers,
   };
+
+  if (currentPath && entriesLoading && entries.length === 0) {
+    return (
+      <div className="flex flex-1 items-center justify-center min-h-[280px]" aria-busy="true">
+        <Loader2 className="size-10 animate-spin text-muted-foreground" aria-hidden />
+      </div>
+    );
+  }
 
   return viewMode === "list" ? (
     <FileList {...childProps} />

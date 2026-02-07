@@ -5,8 +5,8 @@ import { cn } from "@/lib/utils";
 import { EmptyFile } from "./empty-file";
 import { EntryContextMenu } from "./entry-context-menu";
 import { EntryIcon } from "./entry-icon";
-import type { FileViewChildProps } from "./file-view";
-import { useThumbnail } from "../useThumbnail";
+import type { FileViewChildProps } from "@/features/file/components/file-view";
+import { useThumbnail } from "@/features/file/useThumbnail";
 
 type FileGridItemProps = {
   entry: DirEntry;

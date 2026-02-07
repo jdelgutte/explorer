@@ -32,8 +32,12 @@ export default defineConfig(async () => ({
         }
       : undefined,
     watch: {
-      // 3. tell Vite to ignore watching `src-tauri`
-      ignored: ["**/src-tauri/**"],
+      // Ignore dirs that can contain symlink loops (e.g. local .pnpm-store) or are not source.
+      ignored: [
+        "**/src-tauri/**",
+        "**/node_modules/**",
+        "**/.pnpm-store/**",
+      ],
     },
   },
 }));

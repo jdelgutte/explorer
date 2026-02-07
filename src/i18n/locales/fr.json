@@ -135,6 +135,11 @@
   "toast.alreadyInQuickAccess": "Déjà dans l’accès rapide",
   "toast.addedToQuickAccess": "« {{name}} » ajouté à l’accès rapide",
   "toast.accessDenied": "Accès refusé à ce dossier ou fichier.",
+  "toast.loadFolderFailed": "Impossible de charger le contenu du dossier.",
+
+  "errorBoundary.title": "Une erreur s’est produite",
+  "errorBoundary.description": "Une erreur inattendue s’est produite. Vous pouvez réessayer ou redémarrer l’application.",
+  "errorBoundary.retry": "Réessayer",
 
   "breadcrumb.more": "Plus",
   "dialog.close": "Fermer",

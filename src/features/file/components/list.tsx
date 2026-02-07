@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useState } from "react";
+import React, { memo, useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { DirEntry } from "@tauri-apps/plugin-fs";
 import { Virtuoso, type VirtuosoProps } from "react-virtuoso";
@@ -21,6 +21,18 @@ import {
 } from "@/features/file/store/list-columns.store";
 import { formatDate, formatFileSize } from "@/features/file/utils/format";
 import { useThumbnail } from "@/features/file/useThumbnail";
+
+// Custom Scroller: always show scrollbar to prevent blinking during scroll.
+const ListScroller = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ style, ...props }, ref) => (
+  <div ref={ref} style={{ ...style, overflowY: "scroll" }} {...props} />
+));
+ListScroller.displayName = "ListScroller";
+
+/** Approximate row height (icon + padding) for Virtuoso to avoid per-item measurement. */
+const ROW_HEIGHT_PX = 44;
 
 const COLUMN_KEYS: Record<ListColumnId, string> = {
   name: "file.list.name",
@@ -51,22 +63,29 @@ export function FileList({
   const { t } = useTranslation();
   const columns = useListColumnsStore((s) => s.columns);
   const toggleColumn = useListColumnsStore((s) => s.toggleColumn);
-  const [metadata, setMetadata] = useState<Record<string, EntryMetadata>>({});
+  const [metadataVersion, setMetadataVersion] = useState(0);
+  const metadataRef = useRef<Record<string, EntryMetadata>>({});
 
   useEffect(() => {
     if (!currentPath || entries.length === 0) {
-      setMetadata({});
+      metadataRef.current = {};
+      setMetadataVersion((v) => v + 1);
       return;
     }
     let cancelled = false;
     fileApi.getEntriesMetadata(currentPath, entries).then((m) => {
-      if (!cancelled) setMetadata(m);
+      if (!cancelled) {
+        metadataRef.current = m;
+        setMetadataVersion((v) => v + 1);
+      }
     });
     return () => {
       cancelled = true;
     };
   }, [currentPath, entries]);
 
+  // Stable callback: read metadata from ref so we don't depend on metadata object identity.
+  // metadataVersion triggers a single re-render when metadata has loaded.
   const itemContent = useCallback<
     NonNullable<VirtuosoProps<DirEntry, unknown>["itemContent"]>
   >(
@@ -75,7 +94,7 @@ export function FileList({
         entry={entry}
         currentPath={currentPath}
         isSelected={isEntrySelected(entry)}
-        metadata={metadata[entry.name]}
+        metadata={metadataRef.current[entry.name]}
         columns={columns}
         onSelect={(e) => onSelect(entry, e.ctrlKey || e.metaKey)}
         onDoubleClick={() => onDoubleClick(entry)}
@@ -87,7 +106,7 @@ export function FileList({
       contextMenuHandlers,
       currentPath,
       isEntrySelected,
-      metadata,
+      metadataVersion,
       onDoubleClick,
       onSelect,
     ]
@@ -145,12 +164,16 @@ export function FileList({
       </ContextMenu>
 
       {/* List body */}
-      <div className="flex-1">
+      <div className="flex-1 min-h-0">
         <Virtuoso
           style={{ height: "100%" }}
           totalCount={entries.length}
           data={entries}
           itemContent={itemContent}
+          components={{ Scroller: ListScroller }}
+          defaultItemHeight={ROW_HEIGHT_PX}
+          overscan={12}
+          increaseViewportBy={{ top: 80, bottom: 80 }}
         />
       </div>
     </div>
@@ -206,6 +229,7 @@ function ListRow({
           >
             <EntryIcon
               isDirectory={entry.isDirectory}
+              fileName={entry.name}
               imageSrc={imageSrc}
               className={imageSrc ? "size-8" : "size-4 text-muted-foreground"}
             />

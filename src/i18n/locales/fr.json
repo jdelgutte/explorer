@@ -183,7 +183,9 @@
   "options.shortcutDelete": "Déplacer vers la corbeille",
   "options.about": "À propos",
   "options.aboutDescription": "Explorer – un gestionnaire de fichiers simple.",
+  "options.aboutAppDescription": "Un gestionnaire de fichiers simple réalisé avec Tauri et React.",
   "options.version": "Version",
+  "options.sourceCode": "Code source",
   "options.yes": "Oui",
   "options.no": "Non"
 }

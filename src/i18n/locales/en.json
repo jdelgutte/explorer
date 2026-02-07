@@ -183,7 +183,9 @@
   "options.shortcutDelete": "Move to trash",
   "options.about": "About",
   "options.aboutDescription": "Explorer – a simple file manager.",
+  "options.aboutAppDescription": "A simple file manager built with Tauri and React.",
   "options.version": "Version",
+  "options.sourceCode": "Source code",
   "options.yes": "Yes",
   "options.no": "No"
 }

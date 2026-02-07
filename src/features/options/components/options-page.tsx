@@ -72,16 +72,11 @@ export function OptionsPage() {
   }
 
   const currentTheme = theme === "system" || !theme ? "system" : theme;
+  const activeTabData = OPTIONS_TABS.find((tab) => tab.id === activeTab);
 
   return (
     <div className="h-full w-full overflow-auto">
       <div className="mx-auto flex h-full max-w-5xl flex-col gap-6 p-6">
-        <header className="flex items-center justify-between gap-4 border-b pb-4">
-          <div className="flex items-center gap-3">
-            <h1 className="text-xl font-semibold">{t("options.title")}</h1>
-          </div>
-        </header>
-
         <div className="flex flex-1 flex-row gap-6 overflow-hidden">
           <aside
             className="flex w-12 shrink-0 flex-col gap-2 border-r pr-4 sm:w-3/12"
@@ -104,25 +99,33 @@ export function OptionsPage() {
           </aside>
 
           <div className="flex-1 overflow-auto rounded-lg border bg-card p-6">
-            {activeTab === "appearance" && (
-              <AppearanceTab
-                t={t}
-                currentTheme={currentTheme}
-                setTheme={setTheme}
-                locale={locale}
-                setLocale={setLocale}
-              />
+            {activeTabData && (
+              <div className="flex items-center gap-2">
+                {activeTabData.icon}
+                <span className="text-lg font-medium">{t(activeTabData.labelKey)}</span>
+              </div>
             )}
-            {activeTab === "general" && <GeneralTab t={t} />}
-            {activeTab === "system" && (
-              <SystemTab
-                t={t}
-                onSetAsDefault={handleSetAsDefault}
-                onResetDefault={handleResetDefault}
-              />
-            )}
-            {activeTab === "shortcuts" && <ShortcutsTab t={t} />}
-            {activeTab === "about" && <AboutTab t={t} />}
+            <div className="py-4">
+              {activeTab === "appearance" && (
+                <AppearanceTab
+                  t={t}
+                  currentTheme={currentTheme}
+                  setTheme={setTheme}
+                  locale={locale}
+                  setLocale={setLocale}
+                />
+              )}
+              {activeTab === "general" && <GeneralTab t={t} />}
+              {activeTab === "system" && (
+                <SystemTab
+                  t={t}
+                  onSetAsDefault={handleSetAsDefault}
+                  onResetDefault={handleResetDefault}
+                />
+              )}
+              {activeTab === "shortcuts" && <ShortcutsTab t={t} />}
+              {activeTab === "about" && <AboutTab t={t} />}
+            </div>
           </div>
         </div>
       </div>
@@ -148,9 +151,6 @@ function AppearanceTab({
   return (
     <div className="space-y-6">
       <section className="space-y-3">
-        <h2 className="text-sm font-medium text-muted-foreground">
-          {t("options.appearance")}
-        </h2>
         <div className="space-y-2">
           <div className="text-xs font-medium text-muted-foreground">
             {t("options.theme")}

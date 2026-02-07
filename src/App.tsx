@@ -30,7 +30,7 @@ function App() {
 
   return (
     <TooltipProvider>
-    <div className="flex h-screen flex-col">
+    <div className="flex h-screen flex-col antialiased">
       <Toolbar />
       <div className="flex flex-1 min-h-0">
         <Sidebar />

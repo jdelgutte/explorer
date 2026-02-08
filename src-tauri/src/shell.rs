@@ -66,8 +66,9 @@ fn open_linux(path: &Path) -> Result<(), String> {
 
 #[cfg(target_os = "macos")]
 fn open_macos(path: &Path) -> Result<(), String> {
+    let path_str = path.to_string_lossy();
     Command::new("open")
-        .args(["-a", "Terminal.app", path])
+        .args(["-a", "Terminal.app", path_str.as_ref()])
         .spawn()
         .map_err(|e| e.to_string())?;
     Ok(())

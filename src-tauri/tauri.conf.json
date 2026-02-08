@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Explorer",
+  "productName": "Explorer App",
   "version": "0.1.0",
   "identifier": "com.jdlt.explorer",
   "build": {
@@ -28,6 +28,7 @@
   "bundle": {
     "active": true,
     "targets": "all",
+    "mainBinaryName": "explorer-app",
     "icon": [
       "icons/64x64.png",
       "icons/128x128.png",

@@ -3,6 +3,7 @@
   "productName": "Explorer App",
   "version": "0.1.0",
   "identifier": "com.jdlt.explorer",
+  "mainBinaryName": "explorer-app",
   "build": {
     "beforeDevCommand": "pnpm dev",
     "devUrl": "http://localhost:1420",
@@ -28,7 +29,6 @@
   "bundle": {
     "active": true,
     "targets": "all",
-    "mainBinaryName": "explorer-app",
     "icon": [
       "icons/64x64.png",
       "icons/128x128.png",

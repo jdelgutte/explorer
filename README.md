@@ -132,13 +132,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - UI components from [shadcn/ui](https://ui.shadcn.com/)
 - Icons by [Lucide](https://lucide.dev/)
 - Inspired by modern file managers and developer tools
-
-## 📬 Contact
-
-Your Name - [@yourtwitter](https://twitter.com/yourtwitter)
-
-Project Link: [https://github.com/yourusername/file-explorer](https://github.com/yourusername/file-explorer)
-
 ---
 
 <p align="center">Made with ❤️ and Rust 🦀</p>

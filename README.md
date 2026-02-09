@@ -49,14 +49,6 @@ A lightweight, blazing-fast file explorer built with Tauri, React, and Rust. Des
 | **File Operations** | Tauri FS Plugin |
 | **Build Tool** | Tauri CLI |
 
-## 📊 Performance Comparison
-
-| File Manager | RAM Usage | Package Size |
-|--------------|-----------|--------------|
-| GNOME Files (Nautilus) | ~150 MB | ~8 MB |
-| Windows Explorer | ~100 MB | Built-in |
-| **This Explorer** | **~30 MB** | **~10 MB** |
-
 ## 🖥️ Platform Support
 
 This file explorer is developed and tested on **Linux (Pop!_OS)**.
@@ -119,25 +111,6 @@ sudo dpkg -i file-explorer_0.1.0_amd64.deb
 - [ ] Drag and drop support
 - [ ] Enhanced delete confirmation with toast notifications
 - [ ] Performance optimizations (migrate more operations to Rust)
-
-### Planned Features
-- [ ] File preview panel
-- [ ] Bulk operations
-- [ ] Archive support (zip, tar, etc.)
-- [ ] Cloud storage integration
-- [ ] Custom themes
-- [ ] Plugins system
-- [ ] Multi-tab support
-- [ ] Advanced search filters
-
-## 🤝 Contributing
-
-Contributions are welcome! Whether it's:
-- 🐛 Bug reports
-- 💡 Feature requests
-- 🧪 Testing on Windows/macOS
-- 📝 Documentation improvements
-- 💻 Code contributions
 
 Please feel free to open an issue or submit a pull request.
 

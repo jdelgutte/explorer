@@ -9,7 +9,7 @@ A lightweight, blazing-fast file explorer built with Tauri, React, and Rust. Des
 ## ✨ Features
 
 ### 🚀 Performance
-- **Ultra Lightweight** - Only ~30 MB RAM usage (3-5x lighter than traditional file managers)
+- **Ultra Lightweight** - Only ~30 MB RAM usage
 - **Small Footprint** - ~10 MB compiled package
 - **Real-time Watcher** - Automatic file system updates without manual refresh
 
